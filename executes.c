@@ -5,7 +5,7 @@
 # include <sys/wait.h>
 
 void play_song (char * command) {
-  int w;
+  int f;
   char buffer[100];
 
   printf("Hello, you have entered the playing song interface\n\n");
@@ -18,20 +18,23 @@ void play_song (char * command) {
     buffer[strlen(buffer) - 1] = 0;
 
     if (strcmp(buffer, "return") == 0) {
-      if (!fork()) execlp("killall", "killall", "aplay", NULL);
-      wait(&w);
+      f = fork();
+      if (!f) execlp("killall", "killall", "aplay", NULL);
+      waitpid(f, NULL, 0);
       return;
     }
 
     else if (strcmp(buffer, "terminate") == 0) {
-      if (!fork()) execlp("killall", "killall", "aplay", NULL);
-      wait(&w);
+      f = fork();
+      if (!f) execlp("killall", "killall", "aplay", NULL);
+      waitpid(f, NULL, 0);
     }
 
     else if (strcmp(buffer, "list all") == 0) {
       printf("This is what we've got:\n\n");
-      if (!fork()) execlp("ls", "ls", "songs", NULL);
-      wait(&w);
+      f = fork();
+      if (!f) execlp("ls", "ls", "songs", NULL);
+      waitpid(f, NULL, 0);
       printf("\n\n");
     }
 

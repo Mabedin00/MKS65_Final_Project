@@ -5,9 +5,9 @@
 # include "executes.h"
 
 int main() {
-  if (!fork()) execlp("clear", "clear", NULL);
-  int w;
-  wait(&w);
+  int f = fork();
+  if (!f) execlp("clear", "clear", NULL);
+  waitpid(f, NULL, 0);
 
   char buffer[100];
 

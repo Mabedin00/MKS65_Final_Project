@@ -1,3 +1,6 @@
 Brian Moses -- 12:28 1/4
 	- added main.c, executes.c terminal interfaces
 	- added incomplete song creation
+
+Brian Moses -- 17:00, 1/4
+	- completed song creation
