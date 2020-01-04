@@ -4,23 +4,20 @@
 # include <stdio.h>
 # include <sys/wait.h>
 
-void clear() {
-  int f = fork();
-  if (!f) execlp("clear", "clear", NULL);
-  waitpid(f, NULL, 0);
-}
-
 void execute(char * program, char * argument) {
   int f = fork();
   if (!f) execlp(program, program, argument, NULL);
   waitpid(f, NULL, 0);
 }
 
+void clear() {
+  execute("clear", NULL);
+}
+
 void play_song (char * command) {
   char buffer[100];
 
   clear();
-
   printf("Hello, you have entered the playing song interface\n\n");
 
   while (1) {
