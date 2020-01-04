@@ -18,6 +18,7 @@ int main() {
     buffer[strlen(buffer) - 1] = 0;
 
     if (strcmp(buffer, "exit") == 0) {
+      clear();
       return 0;
     }
 

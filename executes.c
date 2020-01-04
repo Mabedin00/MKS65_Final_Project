@@ -10,8 +10,13 @@ void clear() {
   waitpid(f, NULL, 0);
 }
 
+void execute(char * program, char * argument) {
+  int f = fork();
+  if (!f) execlp(program, program, argument, NULL);
+  waitpid(f, NULL, 0);
+}
+
 void play_song (char * command) {
-  int f;
   char buffer[100];
 
   clear();
@@ -28,28 +33,22 @@ void play_song (char * command) {
     clear();
 
     if (strcmp(buffer, "return") == 0) {
-      f = fork();
-      if (!f) execlp("killall", "killall", "aplay", NULL);
-      waitpid(f, NULL, 0);
+      execute("killall", "aplay");
       return;
     }
 
     else if (strcmp(buffer, "terminate") == 0) {
-      f = fork();
-      if (!f) execlp("killall", "killall", "aplay", NULL);
-      waitpid(f, NULL, 0);
+      execute("killall", "aplay");
     }
 
     else if (strcmp(buffer, "list all") == 0) {
       printf("This is what we've got:\n\n");
-      f = fork();
-      if (!f) execlp("ls", "ls", "songs", NULL);
-      waitpid(f, NULL, 0);
+      execute("ls", "songs");
       printf("\n\n");
     }
 
     else {
-      printf("Attempting to play... %s\n", buffer);
+      printf("Attempting to play... %s\n\n", buffer);
       printf("Type 'terminate' to end currently playing song\n");
       if (!fork()) {
         char song_path[100] = "songs/";
