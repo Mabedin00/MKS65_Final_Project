@@ -5,9 +5,7 @@
 # include "executes.h"
 
 int main() {
-  int f = fork();
-  if (!f) execlp("clear", "clear", NULL);
-  waitpid(f, NULL, 0);
+  clear();
 
   char buffer[100];
 
@@ -25,6 +23,7 @@ int main() {
 
     if (strcmp(buffer, "1") == 0) {
       play_song(buffer);
+      clear();
     }
   }
 }

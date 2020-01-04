@@ -4,9 +4,17 @@
 # include <stdio.h>
 # include <sys/wait.h>
 
+void clear() {
+  int f = fork();
+  if (!f) execlp("clear", "clear", NULL);
+  waitpid(f, NULL, 0);
+}
+
 void play_song (char * command) {
   int f;
   char buffer[100];
+
+  clear();
 
   printf("Hello, you have entered the playing song interface\n\n");
 
@@ -16,6 +24,8 @@ void play_song (char * command) {
            "Type 'return' to return to the main selection screen\n\n");
     fgets(buffer, 100, stdin);
     buffer[strlen(buffer) - 1] = 0;
+
+    clear();
 
     if (strcmp(buffer, "return") == 0) {
       f = fork();
