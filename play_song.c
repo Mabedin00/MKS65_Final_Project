@@ -14,7 +14,7 @@ void clear() {
   execute("clear", NULL);
 }
 
-void play_song (char * command) {
+void play_song () {
   char buffer[100];
 
   clear();

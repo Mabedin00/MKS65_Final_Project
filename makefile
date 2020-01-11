@@ -4,18 +4,19 @@ else
   CC = gcc -c
 endif
 
-all: main.o executes.o
-	gcc -o program main.o executes.o
+all: main.o play_song.o
+	gcc -o program main.o play_song.o
 
-main.o: main.c executes.h
+main.o: main.c play_song.h
 	$(CC) main.c
 
-executes.o: executes.c executes.h
-	$(CC) executes.c
+play_song.o: play_song.c play_song.h
+	$(CC) play_song.c
 
 run:
 	./program
 
 clean:
-	rm program
 	rm *.o
+	rm *~
+	rm program
