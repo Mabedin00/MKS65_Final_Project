@@ -4,6 +4,23 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <signal.h>
+
+int game_over = 0;
+int client_socket = 0;
+
+void sighandler() {
+  printf("Game over nerds\n");
+  execute("killall", "aplay");
+  game_over = 1;
+}
+
+void sighandler_2() {
+  char buffer[BUFFER_SIZE];
+  printf("Ran sighandler2\n");
+  strcpy(buffer, "Sorry but game's over\n");
+  write(client_socket, buffer, sizeof(buffer));
+}
 
 char * random_song() {
   return "songs/americanpie.wav";
@@ -19,11 +36,12 @@ void subserver(int client_socket) {
     if (strcmp(buffer, "americanpie.wav") == 0) {
         break;
     }
+    
     strcpy(buffer, "WRONG, DOOFUS");
     write(client_socket, buffer, sizeof(buffer));
   }//end read loop
 
-  printf("Sending signal from subserver to main server to stop blocking at read\n");
+  kill(getppid(), SIGSYS);
   strcpy(buffer, "You won!");
 
   write(client_socket, buffer, sizeof(buffer));
@@ -42,21 +60,24 @@ int server() {
   listen_socket = server_setup();
 
   clear();
+  int pids[number_connections];
 
   while (1) {
 
     // child
     printf("Waiting for connections...\n");
-    int mypipe[2];
+    //int mypipe[2];
     int counter = 0;
+
     while (counter < number_connections) {
-        int client_socket = server_connect(listen_socket);
+        client_socket = server_connect(listen_socket);
 
-	pipe(mypipe);
+	//pipe(mypipe);
 
-	f = fork();
-        if (f == 0) {
-	    dup2(mypipe[1], STDOUT_FILENO);
+	pids[counter] = fork();
+        if (pids[counter] == 0) {
+	    signal(SIGHUP, sighandler_2);
+	    //dup2(mypipe[1], STDOUT_FILENO);
             subserver(client_socket);
 	}
         else {
@@ -66,19 +87,24 @@ int server() {
 
     }
     // super_duper = dup(STDIN_FILENO);
-    dup2(mypipe[0], STDIN_FILENO);
+    // dup2(mypipe[0], STDIN_FILENO);
     f = fork();
     if (!f) {
         execlp("aplay", "aplay", random_song(), NULL);
     }
     else {
-	char input[100];
-        read(STDIN_FILENO, input, sizeof(input));
-	printf("Input: [%s]\n", input);
-	printf("Game Over Nerds\n");
-	execute("killall", "aplay");
-        exit(0);
+        signal(SIGSYS, sighandler);
+	while(1) {
+	  if (game_over == 1) break;
+	  sleep(1);
       }
+	printf("We got out of the loop\n");
+	
+	int i;
+	for (i = 0; i < number_connections; i++) {
+	  kill(pids[i], SIGHUP); // just used for communications
+      }
+    }
   }
 }
 
