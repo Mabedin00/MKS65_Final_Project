@@ -13,10 +13,10 @@ main.o: main.c play_song.h server.h client.h
 play_song.o: play_song.c play_song.h
 	$(CC) play_song.c
 
-server.o: server.c server.h networking.h
+server.o: server.c server.h networking.h play_song.h
 	$(CC) server.c
 
-client.o: client.c client.h networking.h
+client.o: client.c client.h networking.h play_song.h
 	$(CC) client.c
 
 networking.o: networking.c networking.h
