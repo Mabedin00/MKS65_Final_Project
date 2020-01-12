@@ -11,8 +11,18 @@ void subserver(int client_socket) {
   while (read(client_socket, buffer, sizeof(buffer))) {
 
     printf("[subserver %d] received: [%s]\n", getpid(), buffer);
+
+    // code that I added
+    if (strcmp(buffer, "americanpie.wav") == 0) {
+        break;
+    }
+
     write(client_socket, buffer, sizeof(buffer));
   }//end read loop
+
+  strcpy(buffer, "You won!");
+
+  write(client_socket, buffer, sizeof(buffer));
   close(client_socket);
   exit(0);
 }
