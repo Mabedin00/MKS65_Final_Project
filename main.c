@@ -26,16 +26,16 @@ int main() {
       play_song();
       clear();
     }
-    
+
     else if (strcmp(buffer, "2") == 0) {
-      //server();
+      server();
       clear();
     }
-    
+
     else if (strcmp(buffer, "3") == 0) {
       //client();
       clear();
     }
-    
+
   }
 }
