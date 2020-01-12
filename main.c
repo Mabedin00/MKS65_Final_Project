@@ -3,11 +3,14 @@
 # include <unistd.h>
 # include <sys/wait.h>
 # include "play_song.h"
+# include "server.h"
+# include "client.h"
 
 int main() {
   clear();
 
   char buffer[100];
+  char ip_buffer[100];
 
   printf("Hello, this is our music player final project! Type 'exit' to exit\n\n");
 
@@ -33,7 +36,9 @@ int main() {
     }
 
     else if (strcmp(buffer, "3") == 0) {
-      //client();
+      printf("Gib ip\n");
+      fgets(ip_buffer, 100, stdin);
+      client(ip_buffer);
       clear();
     }
 
