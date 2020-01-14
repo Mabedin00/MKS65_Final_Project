@@ -2,15 +2,14 @@
 #include <stdlib.h>
 #include <string.h>
 
-struct song *SONGQUEUE = NULL;
-
 // print_queue :: outputs the contents of the queue
 void print_queue(struct songQ* queue) {
+    printf("Up next...\n");
+    int i = 1;
      while (queue) {
-          if (!strcmp(queue->name, "PLAYLIST_ORIGIN") {
-               printf("%s", queue->name);
-          }
+          printf("\t%d. %s", i, queue->name);
           queue = queue->next;
+          i++;
      }
      printf("\n");
 }
