@@ -7,7 +7,7 @@ void print_queue(struct songQ* queue) {
     printf("Up next...\n");
     int i = 1;
      while (queue) {
-          printf("\t%d. %s", i, queue->name);
+          printf("\t%d) %s", i, queue->name);
           queue = queue->next;
           i++;
      }
@@ -51,5 +51,13 @@ struct songQ* clear_queue(struct songQ* queue) {
 
 // add_song :: adds new song to back of queue
 struct songQ *add_song(struct songQ* queue, char* name) {
-
+    struct song new_node = malloc(sizeof(struct song*));
+    strncpy(new_node.name, name);
+    new_node.next = NULL;
+    if (queue.last) {
+        queue->last.next = new_node;
+    } else {
+        queue.first = new_node;
+    }
+    queue.last = new_node;
 }
