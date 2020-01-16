@@ -4,11 +4,12 @@
 
 // print_queue :: outputs the contents of the queue
 void print_queue(struct songQ* queue) {
+    song* current = queue->first
     printf("Up next...\n");
     int i = 1;
-     while (queue) {
-          printf("\t%d) %s", i, queue->name);
-          queue = queue->next;
+     while (current) {
+          printf("\t%d) %s", i, first->name);
+          current = current->next;
           i++;
      }
      printf("\n");
