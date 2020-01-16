@@ -15,13 +15,13 @@ void print_queue(struct songQ* queue) {
 }
 
 // remove_song :: removes target song from queue
-void** pop(struct songQ* queue) {
+song* dequeue(struct songQ* queue) {
      if (!queue->first) {
           return queue;
      }
      song* ans = queue->first;
      queue->first = ans->next;
-     return {queue, ans};
+     return ans;
 }
 
 // clear_queue :: clears entire queue, save for buffer 'PLAYLIST_ORIGIN'
