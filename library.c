@@ -38,7 +38,7 @@ void clear_queue(struct songQ* queue) {
 }
 
 // add_song :: adds new song to back of queue
-struct songQ *add_song(struct songQ* queue, char* name) {
+void enqueue(struct songQ* queue, char* name) {
     struct song* new_node = malloc(sizeof(struct song));
     strncpy(new_node->name, name);
     new_node->next = NULL;

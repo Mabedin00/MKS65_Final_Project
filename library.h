@@ -12,8 +12,8 @@ struct song {
 };
 
 void print_queue(struct songQ* queue);
-struct songQ* add_song(struct songQ* queue, char* name);
-struct songQ* remove_song(struct songQ* queue, char* name);
-struct songQ* clear_queue(struct songQ* list);
+void enqueue(struct songQ* queue, char* name);
+void dequeue(struct songQ* queue, char* name);
+void clear_queue(struct songQ* list);
 
 #endif
