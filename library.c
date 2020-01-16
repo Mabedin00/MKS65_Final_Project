@@ -20,8 +20,10 @@ void dequeue(struct songQ* queue, char* buffer) {
      if (!queue->first) {
           return queue;
      }
-     strcpy(buffer, queue->first->name);
-     queue->first = ans->next;
+     song* to_del = queue->first;
+     strcpy(buffer, to_del->name);
+     queue->first = to_del->next;
+     free(to_del);
 }
 
 // clear_queue :: clears entire queue, save for buffer 'PLAYLIST_ORIGIN'
