@@ -16,24 +16,17 @@ void print_queue(struct songQ* queue) {
 }
 
 // remove_song :: removes target song from queue
-song* dequeue(struct songQ* queue) {
+void dequeue(struct songQ* queue, char* buffer) {
      if (!queue->first) {
           return queue;
      }
-     song* ans = queue->first;
+     strcpy(buffer, queue->first->name);
      queue->first = ans->next;
-     return ans;
 }
 
 // clear_queue :: clears entire queue, save for buffer 'PLAYLIST_ORIGIN'
 struct songQ* clear_queue(struct songQ* queue) {
      while (queue->next != NULL) {
-          if (strcmp(queue->name, "PLAYLIST_ORIGIN")) {
-               queue = queue->next;
-          }
-          else {
-               queue = remove_song(queue, queue);
-          }
      }
      return queue;
 }
