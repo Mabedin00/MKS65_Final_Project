@@ -11,6 +11,7 @@ int main() {
 
   char buffer[100];
   char ip_buffer[100];
+  char num_songs[100];
 
   printf("Hello, this is our music player final project! Type 'exit' to exit\n\n");
 
@@ -31,7 +32,8 @@ int main() {
     }
 
     else if (strcmp(buffer, "2") == 0) {
-      server();
+      num_songs = "3";
+      server(num_songs);
       clear();
     }
 

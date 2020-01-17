@@ -9,6 +9,16 @@
 #include <signal.h>
 #include <time.h>
 
+
+// TODO:
+
+// 0. Repeat songs
+// 1. Make it so songs cannot be repeated
+// 2. Add timer
+// 3. Variable max players, max songs
+// 4. Points!
+// 5. Winning message
+
 int game_over = 0;
 int client_socket = 0;
 
@@ -83,20 +93,20 @@ void subserver(int client_socket, char * song_to_be_played) {
 }
 
 
-
-
-int server() {
+int server(char * num_songs) {
   char buffer[100];
   int number_connections = 2;
   int f;
   int listen_socket;
+  int current_song_number;
+  int num_songs = atoi(num_songs);
   listen_socket = server_setup();
   char * song_to_be_played;
 
   clear();
   int pids[number_connections];
 
-  while (1) {
+  while (current_song_numer < num_songs) {
 	song_to_be_played = random_song();
 	
     printf("Waiting for connections...\n");
@@ -140,5 +150,7 @@ int server() {
         
     } // end server else
     
-  }
-}
+    num_songs++;
+  } // end of while current_song < num_songs loop
+} // end of server function
+// end of file
