@@ -37,8 +37,9 @@ int main() {
 
     else if (strcmp(buffer, "3") == 0) {
       clear();
-      printf("Enter ip you want to connect to: \n");
-      fgets(ip_buffer, 100, stdin);
+      //printf("Enter ip you want to connect to: \n");
+      //fgets(ip_buffer, 100, stdin);
+      strcpy(ip_buffer, "149.89.150.103");
       client(ip_buffer);
       clear();
     }

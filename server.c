@@ -60,13 +60,13 @@ char * random_song() {
 
 }
 
-void subserver(int client_socket) {
+void subserver(int client_socket, char * song_to_be_played) {
   char buffer[BUFFER_SIZE];
 
   while (read(client_socket, buffer, sizeof(buffer))) {
 
     // code that I added
-    if (!strcmp(buffer, "americanpie.wav")) {
+    if (!strcmp(buffer, song_to_be_played)) {
         break;
     }
 
@@ -91,55 +91,54 @@ int server() {
   int f;
   int listen_socket;
   listen_socket = server_setup();
+  char * song_to_be_played;
 
   clear();
   int pids[number_connections];
 
   while (1) {
-
-    // child
+	song_to_be_played = random_song();
+	
     printf("Waiting for connections...\n");
-    //int mypipe[2];
     int counter = 0;
 
     while (counter < number_connections) {
         client_socket = server_connect(listen_socket);
 
-	//pipe(mypipe);
-
-	pids[counter] = fork();
+		pids[counter] = fork();
         if (pids[counter] == 0) {
 	    signal(SIGHUP, sighandler_2);
-	    //dup2(mypipe[1], STDOUT_FILENO);
-            subserver(client_socket);
-	}
+            subserver(client_socket, song_to_be_played);
+		}
         else {
             counter++;
             close(client_socket);
-	}
-
+		}
     }
 
-    // super_duper = dup(STDIN_FILENO);
-    // dup2(mypipe[0], STDIN_FILENO);
     f = fork();
 
     if (!f) {
-        // printf("%s\n", random_song());
-        execlp("aplay", "aplay", random_song(), NULL);
+        execlp("aplay", "aplay", song_to_be_played, NULL);
     }
+    
+    // server that's not playing the song
     else {
+    
         signal(SIGSYS, sighandler);
-	while(1) {
-	  if (game_over == 1) break;
-	  sleep(1);
-      }
-	printf("We got out of the loop\n");
+		while(1) {
+		    if (game_over == 1) break;
+		    sleep(1);
+		}
+		
+	    printf("We got out of the loop\n");
 
-	int i;
-	for (i = 0; i < number_connections; i++) {
-	  kill(pids[i], SIGHUP); // just used for communications
-      }
-    }
+	    int i;
+	    for (i = 0; i < number_connections; i++) {
+	        kill(pids[i], SIGHUP); // just used for communications
+        }
+        
+    } // end server else
+    
   }
 }
