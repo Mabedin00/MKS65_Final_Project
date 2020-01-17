@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "library.h"
 
 // print_queue :: outputs the contents of the queue
 void print_queue(struct songQ* queue) {
