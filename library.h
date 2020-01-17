@@ -13,7 +13,7 @@ struct song {
 
 void print_queue(struct songQ* queue);
 void enqueue(struct songQ* queue, char* name);
-void dequeue(struct songQ* queue, char* name);
-void clear_queue(struct songQ* list);
+void dequeue(struct songQ* queue, char* buffer);
+void clear_queue(struct songQ* queue);
 
 #endif
