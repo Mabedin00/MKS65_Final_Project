@@ -3,13 +3,15 @@
 #include <string.h>
 #include "library.h"
 
+// NOTE: initialize songQ beforehand! :: struct songQ queue; queue.first = NULL; queue.last = NULL;
+
 // print_queue :: outputs the contents of the queue
 void print_queue(struct songQ* queue) {
     struct song* current = queue->first;
     printf("Up next...\n");
     int i = 1;
      while (current) {
-          printf("\t%d) %s", i, current->name);
+          printf("\t%d) %s\n", i, current->name);
           current = current->next;
           i++;
      }
@@ -17,6 +19,7 @@ void print_queue(struct songQ* queue) {
 }
 
 // remove_song :: removes target song from queue
+// NOTE: initialize buffer beforehand! :: char buffer[100];
 void dequeue(struct songQ* queue, char* buffer) {
     if (!queue->first) {
         return;

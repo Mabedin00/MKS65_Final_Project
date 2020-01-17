@@ -4,14 +4,26 @@
 #include "library.h"
 
 int main() {
-     struct songQ *queue = NULL;
+     struct songQ queue;
 
-     print_queue(queue);
+     queue.first = NULL;
+     queue.last = NULL;
 
-     enqueue(queue, "americanpie");
-     enqueue(queue, "heartless");
-     enqueue(queue, "kidsseeghosts");
-     enqueue(queue, "allofthelights");
+     print_queue(&queue);
 
-     print_queue(queue);
+     enqueue(&queue, "americanpie");
+     enqueue(&queue, "heartless");
+     enqueue(&queue, "kidsseeghosts");
+     enqueue(&queue, "allofthelights");
+
+     print_queue(&queue);
+
+     char buffer[100];
+
+     dequeue(&queue, buffer);
+     printf("Removed %s...\n", buffer);
+     dequeue(&queue, buffer);
+     printf("Removed %s...\n", buffer);
+
+     print_queue(&queue);
 }
