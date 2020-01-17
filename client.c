@@ -2,6 +2,18 @@
 # include "networking.h"
 # include "play_song.h"
 
+
+
+
+void empty_string(char * buffer){
+    int c = 0;
+    while (buffer[c] != '\0') {
+        buffer[c] = '\0';
+        c++;
+    }
+}
+
+
 int client(char * ip) {
   int server_socket;
   char buffer[BUFFER_SIZE];
@@ -13,7 +25,7 @@ int client(char * ip) {
   while (1) {
     printf("Guess a song: ");
     fgets(buffer, sizeof(buffer), stdin);
-    *strchr(buffer, '\n') = 0;
+    *strchr(buffer, '\n') = '\0';
 
     // removing all spaces
     char format[BUFFER_SIZE];
@@ -38,6 +50,7 @@ int client(char * ip) {
     printf("%s", format);
 
     write(server_socket, buffer, sizeof(buffer));
+    empty_string(buffer);
     read(server_socket, buffer, sizeof(buffer));
     printf("[%s]\n", buffer);
   }
