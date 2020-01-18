@@ -2,23 +2,15 @@
 # include "networking.h"
 # include "play_song.h"
 
-
-
-
-void empty_string(char * buffer){
-    int c = 0;
-    while (buffer[c] != '\0') {
-        buffer[c] = '\0';
-        c++;
-    }
-}
-
-
-int client(char * ip) {
+int client() {
   int server_socket;
   char buffer[BUFFER_SIZE];
 
+  char ip[BUFFER_SIZE];
+  //fgets(ip, BUFFER_SIZE, stdin);
+  strcpy(ip, "149.89.150.103"); // for testing, change later
   server_socket = client_setup(ip);
+
   clear();
 
   printf("%s\n", ip);
@@ -50,7 +42,6 @@ int client(char * ip) {
     //printf("%s", format);
 
     write(server_socket, buffer, sizeof(buffer));
-    //empty_string(buffer);
     *buffer = '\0';
     read(server_socket, buffer, sizeof(buffer));
     printf("[%s]\n", buffer);

@@ -1,1 +1,1 @@
-int client(char * ip);
+int client();

@@ -15,19 +15,44 @@
 // ADDED:
 // 1. Fix weird text stuff
 // 2. Multiple songs can play
+// 3. Make it so songs cannot be repeated
+// 4. Variable max players, max songs
 
-// 1. Make it so songs cannot be repeated
 // 2. Add timer
-// 3. Variable max players, max songs
 // 4. Points!
 // 5. Winning message
 
 int game_over = 0;
 int client_socket = 0;
 
-int server(char * num_songs) {
+int server() {
+  // SETTINGS
+
+  char num_songs[BUFFER_SIZE];
+  int max_song_number = max_songs();
+  printf("How many songs would you like to play total?\n");
+  printf("You may choose at most %d songs"
+         "(that is how many songs are in the songs directory)\n", max_song_number);
+
+  //fgets(num_songs, BUFFER_SIZE, stdin);
+  strcpy(num_songs, "3");
+
+  while (atoi(num_songs) > max_song_number) {
+    printf("Please select less songs than %d/n", max_song_number);
+    fgets(num_songs, BUFFER_SIZE, stdin);
+  }
+
+  char max_players[BUFFER_SIZE];
+  printf("What is the max number of players you would like to have?\n");
+  printf("We recommend you choose at most 4 players. But choose as many as you want!\n");
+
+  //fgets(max_players, BUFFER_SIZE, stdin);
+  strcpy(max_players, "2");
+
+  // ACTUAL GAME START
+
   char buffer[100];
-  int number_connections = 2;
+  int number_connections = atoi(max_players);
   int f;
   int listen_socket;
   int current_song_number = 0;
@@ -37,12 +62,16 @@ int server(char * num_songs) {
   int pids[number_connections];
   srand(time(NULL));
 
+
   clear();
   printf("Waiting for connections...\n");
 
   int counter = 0;
   while (counter < num_songs_int) {
     songs_to_be_played[counter] = random_song();
+
+    while (is_duplicate(songs_to_be_played, counter))
+      songs_to_be_played[counter] = random_song();
     counter++;
   }
 
@@ -78,7 +107,7 @@ int server(char * num_songs) {
       }
 
       game_over = 0; // reset game_over
-      sleep(3);
+      sleep(1);
 
       int i;
       for (i = 0; i < number_connections; i++) {
@@ -100,11 +129,11 @@ void subserver(int client_socket, char ** songs_to_be_played) {
 
   while (read(client_socket, receive_buffer, sizeof(receive_buffer))) {
 
-    if (game_over == 1) {
+    if (game_over == 1) { // if we should move onto next song
       game_over = 0;
       current_song++;
     }
-    // code that I added
+
     if (!strcmp(receive_buffer, songs_to_be_played[current_song])) {
       kill(getppid(), SIGSYS);
       strcpy(send_buffer, "You won!");
@@ -141,29 +170,46 @@ void sighandler_2() {
 }
 
 char * random_song() {
-
-    char dir_to_scan[256] = "songs";
-	char *  song_name = malloc(100);
-	strcpy(song_name, "songs/");
-	DIR * dir = opendir(dir_to_scan);
-	struct dirent * direntry = readdir(dir);
-    int count_files = -2;
+    int default_dir_count = 2;
+    char dir_to_scan[BUFFER_SIZE] = "songs";
+    char *  song_name = malloc(100);
+    strcpy(song_name, "songs/");
+    DIR * dir = opendir(dir_to_scan);
+    struct dirent * direntry = readdir(dir);
+    int count_files = -default_dir_count;
     for ( ; direntry != NULL; direntry = readdir(dir)){
         count_files++;
-        }
+    }
 
     if (count_files < 0) {
         printf("No songs in the directory\n");
     }
     rewinddir(dir);
-
-    int random_file = random_int(3,5);
+    int random_file = random_int(default_dir_count + 1, default_dir_count + count_files);
     count_files = 0;
 
     for (; count_files != random_file; direntry = readdir(dir), count_files++){
      }
     strcat(song_name, direntry->d_name);
-    // return "songs/americanpie.wav";
-	return song_name;
+    return song_name;
+}
 
+int is_duplicate(char ** songs_to_be_played, int index) {
+    int i;
+    for (i = 0; i < index; i++)
+      if (!strcmp(songs_to_be_played[i], songs_to_be_played[index]))
+        return 1;
+    return 0;
+}
+
+int max_songs() {
+    char dir_to_scan[BUFFER_SIZE] = "songs";
+    DIR * dir = opendir(dir_to_scan);
+    struct dirent * direntry = readdir(dir);
+    int default_dir_count = 2;
+    int count_files = -default_dir_count;
+    for ( ; direntry != NULL; direntry = readdir(dir)){
+        count_files++;
+    }
+    return count_files;
 }
