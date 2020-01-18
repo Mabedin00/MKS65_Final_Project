@@ -12,7 +12,10 @@
 
 // TODO:
 
-// 0. Repeat songs
+// ADDED:
+// 1. Fix weird text stuff
+// 2. Multiple songs can play
+
 // 1. Make it so songs cannot be repeated
 // 2. Add timer
 // 3. Variable max players, max songs
@@ -30,22 +33,27 @@ int server(char * num_songs) {
   int current_song_number = 0;
   int num_songs_int = atoi(num_songs);
   listen_socket = server_setup();
-  char * song_to_be_played;
+  char * songs_to_be_played[num_songs_int];
   int pids[number_connections];
+  srand(time(NULL));
 
   clear();
   printf("Waiting for connections...\n");
 
-  song_to_be_played = random_song();
-
   int counter = 0;
+  while (counter < num_songs_int) {
+    songs_to_be_played[counter] = random_song();
+    counter++;
+  }
+
+  counter = 0;
   while (counter < number_connections) {
     client_socket = server_connect(listen_socket);
 
       pids[counter] = fork();
       if (pids[counter] == 0) {
         signal(SIGHUP, sighandler_2);
-        subserver(client_socket, song_to_be_played);
+        subserver(client_socket, songs_to_be_played);
       }
       else {
         counter++;
@@ -54,15 +62,10 @@ int server(char * num_songs) {
   }
 
   while (current_song_number < num_songs_int) {
-    // for the fist song, song_to_be_played must be determined outside of while loop
-    if (current_song_number != 0) {
-      *song_to_be_played = '\0'; // wipe contents of song_to_be_played
-      song_to_be_played = random_song();
-    }
 
     f = fork();
     if (!f) {
-        execlp("aplay", "aplay", song_to_be_played, NULL);
+        execlp("aplay", "aplay", songs_to_be_played[current_song_number], NULL);
     }
 
     // server that's not playing the song
@@ -89,21 +92,28 @@ int server(char * num_songs) {
 } // end of server function
 
 
-void subserver(int client_socket, char * song_to_be_played) {
+void subserver(int client_socket, char ** songs_to_be_played) {
   char receive_buffer[BUFFER_SIZE];
   char send_buffer[BUFFER_SIZE];
 
+  int current_song = 0;
+
   while (read(client_socket, receive_buffer, sizeof(receive_buffer))) {
 
+    if (game_over == 1) {
+      game_over = 0;
+      current_song++;
+    }
     // code that I added
-    if (!strcmp(receive_buffer, song_to_be_played)) {
+    if (!strcmp(receive_buffer, songs_to_be_played[current_song])) {
       kill(getppid(), SIGSYS);
       strcpy(send_buffer, "You won!");
       write(client_socket, send_buffer, sizeof(send_buffer));
     }
-
-    strcpy(send_buffer, "Incorrect guess");
-    write(client_socket, send_buffer, sizeof(send_buffer));
+    else {
+      strcpy(send_buffer, "Incorrect guess");
+      write(client_socket, send_buffer, sizeof(send_buffer));
+    }
   }//end read loop
 
   close(client_socket);
@@ -112,10 +122,8 @@ void subserver(int client_socket, char * song_to_be_played) {
 
 
 
-int random_int(int min, int max){
-    srand(time(0));
+int random_int(int min, int max) {
     return min + rand() % (max+1 - min);
-
 }
 
 void sighandler() {
@@ -125,10 +133,11 @@ void sighandler() {
 }
 
 void sighandler_2() {
-  char buffer[BUFFER_SIZE];
-  printf("Ran sighandler2\n");
-  strcpy(buffer, "Sorry but game's over\n");
-  write(client_socket, buffer, sizeof(buffer));
+  //char buffer[BUFFER_SIZE];
+  //printf("Ran sighandler2\n");
+  //strcpy(buffer, "Sorry but game's over\n");
+  //write(client_socket, buffer, sizeof(buffer));
+  game_over = 1;
 }
 
 char * random_song() {
