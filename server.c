@@ -98,17 +98,17 @@ int server(char * num_songs) {
   int number_connections = 2;
   int f;
   int listen_socket;
-  int current_song_number;
-  int num_songs = atoi(num_songs);
+  int current_song_number = 0;
+  int num_songs_int = atoi(num_songs);
   listen_socket = server_setup();
   char * song_to_be_played;
 
   clear();
   int pids[number_connections];
 
-  while (current_song_numer < num_songs) {
+  while (current_song_number < num_songs_int) {
 	song_to_be_played = random_song();
-	
+
     printf("Waiting for connections...\n");
     int counter = 0;
 
@@ -131,10 +131,10 @@ int server(char * num_songs) {
     if (!f) {
         execlp("aplay", "aplay", song_to_be_played, NULL);
     }
-    
+
     // server that's not playing the song
     else {
-    
+
         signal(SIGSYS, sighandler);
 		while(1) {
 		    if (game_over == 1) break;

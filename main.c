@@ -32,7 +32,7 @@ int main() {
     }
 
     else if (strcmp(buffer, "2") == 0) {
-      num_songs = "3";
+      strcpy(num_songs, "3");
       server(num_songs);
       clear();
     }
