@@ -31,32 +31,33 @@ int server(char * num_songs) {
   int num_songs_int = atoi(num_songs);
   listen_socket = server_setup();
   char * song_to_be_played;
-
-  clear();
   int pids[number_connections];
 
-  while (current_song_number < num_songs_int) {
-	song_to_be_played = random_song();
+  clear();
+  printf("Waiting for connections...\n");
 
-    printf("Waiting for connections...\n");
-    int counter = 0;
+  song_to_be_played = random_song();
 
-    while (counter < number_connections) {
-        client_socket = server_connect(listen_socket);
+  int counter = 0;
+  while (counter < number_connections) {
+    client_socket = server_connect(listen_socket);
 
-		pids[counter] = fork();
-        if (pids[counter] == 0) {
-	    signal(SIGHUP, sighandler_2);
-            subserver(client_socket, song_to_be_played);
-		}
-        else {
-            counter++;
-            close(client_socket);
-		}
+      pids[counter] = fork();
+      if (pids[counter] == 0) {
+        signal(SIGHUP, sighandler_2);
+        subserver(client_socket, song_to_be_played);
+      }
+      else {
+        counter++;
+        close(client_socket);
     }
+  }
+
+  while (current_song_number < num_songs_int) {
+    // for the fist song, song_to_be_played must be determined outside of while loop
+    if (current_song_number != 0) song_to_be_played = random_song();
 
     f = fork();
-
     if (!f) {
         execlp("aplay", "aplay", song_to_be_played, NULL);
     }
@@ -64,18 +65,19 @@ int server(char * num_songs) {
     // server that's not playing the song
     else {
 
-        signal(SIGSYS, sighandler);
-		while(1) {
-		    if (game_over == 1) break;
-		    sleep(1);
-		}
+      signal(SIGSYS, sighandler);
+      while(1) {
+        if (game_over == 1) break;
+	sleep(1);
+      }
 
-	    printf("We got out of the loop\n");
+      game_over = 0; // reset game_over
+      sleep(3);
 
-	    int i;
-	    for (i = 0; i < number_connections; i++) {
-	        kill(pids[i], SIGHUP); // just used for communications
-        }
+      int i;
+      for (i = 0; i < number_connections; i++) {
+        kill(pids[i], SIGHUP); // SIGHUP just used for communications
+      }
 
     } // end server else
 
