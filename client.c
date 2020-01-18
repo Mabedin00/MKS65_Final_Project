@@ -47,10 +47,11 @@ int client(char * ip) {
       a++;
     }
 
-    printf("%s", format);
+    //printf("%s", format);
 
     write(server_socket, buffer, sizeof(buffer));
-    empty_string(buffer);
+    //empty_string(buffer);
+    *buffer = '\0';
     read(server_socket, buffer, sizeof(buffer));
     printf("[%s]\n", buffer);
   }

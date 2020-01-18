@@ -55,7 +55,10 @@ int server(char * num_songs) {
 
   while (current_song_number < num_songs_int) {
     // for the fist song, song_to_be_played must be determined outside of while loop
-    if (current_song_number != 0) song_to_be_played = random_song();
+    if (current_song_number != 0) {
+      *song_to_be_played = '\0'; // wipe contents of song_to_be_played
+      song_to_be_played = random_song();
+    }
 
     f = fork();
     if (!f) {
@@ -81,29 +84,28 @@ int server(char * num_songs) {
 
     } // end server else
 
-    num_songs++;
+    current_song_number++;
   } // end of while current_song < num_songs loop
 } // end of server function
 
 
 void subserver(int client_socket, char * song_to_be_played) {
-  char buffer[BUFFER_SIZE];
+  char receive_buffer[BUFFER_SIZE];
+  char send_buffer[BUFFER_SIZE];
 
-  while (read(client_socket, buffer, sizeof(buffer))) {
+  while (read(client_socket, receive_buffer, sizeof(receive_buffer))) {
 
     // code that I added
-    if (!strcmp(buffer, song_to_be_played)) {
-        break;
+    if (!strcmp(receive_buffer, song_to_be_played)) {
+      kill(getppid(), SIGSYS);
+      strcpy(send_buffer, "You won!");
+      write(client_socket, send_buffer, sizeof(send_buffer));
     }
 
-    strcpy(buffer, "WRONG, DOOFUS");
-    write(client_socket, buffer, sizeof(buffer));
+    strcpy(send_buffer, "Incorrect guess");
+    write(client_socket, send_buffer, sizeof(send_buffer));
   }//end read loop
 
-  kill(getppid(), SIGSYS);
-  strcpy(buffer, "You won!");
-
-  write(client_socket, buffer, sizeof(buffer));
   close(client_socket);
   exit(0);
 }
