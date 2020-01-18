@@ -12,6 +12,10 @@
 
 // TODO:
 
+// Known bugs:
+
+// 1. Need to sleep after connections recieved or subserver writes empty message to client (???)
+
 // ADDED:
 // 1. Fix weird text stuff
 // 2. Multiple songs can play
@@ -22,6 +26,7 @@
 // 4. Points!
 // 5. Winning message
 
+int game_start = 0;
 int game_over = 0;
 int client_socket = 0;
 
@@ -82,12 +87,20 @@ int server() {
       pids[counter] = fork();
       if (pids[counter] == 0) {
         signal(SIGHUP, sighandler_2);
+        signal(SIGALRM, sighandler_3);
         subserver(client_socket, songs_to_be_played);
       }
       else {
         counter++;
         close(client_socket);
     }
+  }
+
+  sleep(1); // why does this have to be here? to be honest, I don't know
+
+  int i;
+  for (i = 0; i < number_connections; i++) {
+    kill(pids[i], SIGALRM); // tell subservers game is starting
   }
 
   while (current_song_number < num_songs_int) {
@@ -111,7 +124,7 @@ int server() {
 
       int i;
       for (i = 0; i < number_connections; i++) {
-        kill(pids[i], SIGHUP); // SIGHUP just used for communications
+        kill(pids[i], SIGHUP); // tell subservers to move on to next song
       }
 
     } // end server else
@@ -127,7 +140,12 @@ void subserver(int client_socket, char ** songs_to_be_played) {
 
   int current_song = 0;
 
-  while (read(client_socket, receive_buffer, sizeof(receive_buffer))) {
+  while (!game_start) sleep(.1);
+
+  strcpy(send_buffer, "Game start\n");
+  write(client_socket, send_buffer, BUFFER_SIZE);
+
+  while (read(client_socket, receive_buffer, BUFFER_SIZE)) {
 
     if (game_over == 1) { // if we should move onto next song
       game_over = 0;
@@ -166,7 +184,11 @@ void sighandler_2() {
   //printf("Ran sighandler2\n");
   //strcpy(buffer, "Sorry but game's over\n");
   //write(client_socket, buffer, sizeof(buffer));
-  game_over = 1;
+  game_over = 1; // tell subservers we're moving onto next song
+}
+
+void sighandler_3() {
+  game_start = 1; // tell subservers game has started
 }
 
 char * random_song() {

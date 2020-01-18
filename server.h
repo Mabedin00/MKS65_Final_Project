@@ -2,6 +2,7 @@
 
 void sighandler();
 void sighandler_2();
+void sighandler_3();
 int random_int(int min, int max);
 int server();
 char * random_song();

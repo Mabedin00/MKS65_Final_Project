@@ -14,6 +14,12 @@ int client() {
   clear();
 
   printf("%s\n", ip);
+  printf("Waiting for more players\n");
+
+  read(server_socket, buffer, BUFFER_SIZE);
+  printf("Received from subserver: [%s]\n", buffer);
+  printf("Game starting\n");
+
   while (1) {
     printf("Guess a song: ");
     fgets(buffer, sizeof(buffer), stdin);
