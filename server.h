@@ -9,3 +9,5 @@ char * random_song();
 void subserver(int client_socket, char ** songs_to_be_played);
 int is_duplicate(char ** songs_to_be_played, int index);
 int max_songs();
+int ask_for_num_songs();
+int ask_for_num_players();
