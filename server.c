@@ -56,7 +56,7 @@ int server() {
         if (counter < number_connections - 1) exit(0); // let one survive
     }
   }
-  
+
   sleep(1);
   // tell subservers game is starting
   int i;
@@ -108,15 +108,15 @@ void subserver(int client_socket, char ** songs_to_be_played, int max_song_numbe
     }
     // if someone guesses correct song
     strcpy(full_path, "songs/");
-    
+
     full_path[strlen(full_path)] = 0;
-    
+
     strcat(full_path, receive_buffer);
     strcat(full_path, ".wav");
-    
+
     printf("Full path: %s\n", full_path);
     printf("Current song: %d\n", current_song);
-    
+
     if (!strcmp(full_path, songs_to_be_played[current_song])) {
       kill(getppid(), SIGSYS);
       strcpy(send_buffer, "You won!");
@@ -198,7 +198,7 @@ int ask_for_num_players() {
     printf("What is the max number of players you would like to have?\n");
     printf("We recommend you choose at most 4 players. But choose as many as you want!\n");
     //fgets(max_players, BUFFER_SIZE, stdin);
-    strcpy(max_players, "2");
+    strcpy(max_players, "1");
     return atoi(max_players);
 }
 
