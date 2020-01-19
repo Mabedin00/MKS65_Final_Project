@@ -1,5 +1,5 @@
 int client();
-static int update_timer();
-void enter_guess(char * buffer);
+static int update();
+static int get_data_from_server();
+void enter_guess();
 void do_stuff();
-

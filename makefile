@@ -23,7 +23,7 @@ networking.o: networking.c networking.h
 	$(CC) networking.c
 
 run:
-	./program
+	GDK_SCALE=3 ./program
 
 clean:
 	rm program
