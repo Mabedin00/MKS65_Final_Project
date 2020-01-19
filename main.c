@@ -3,6 +3,8 @@
 # include <unistd.h>
 # include <sys/wait.h>
 # include "play_song.h"
+# include "server.h"
+# include "client.h"
 
 int main() {
   clear();
@@ -22,20 +24,10 @@ int main() {
       return 0;
     }
 
-    if (strcmp(buffer, "1") == 0) {
-      play_song();
-      clear();
-    }
-    
-    else if (strcmp(buffer, "2") == 0) {
-      //server();
-      clear();
-    }
-    
-    else if (strcmp(buffer, "3") == 0) {
-      //client();
-      clear();
-    }
-    
+    if      (strcmp(buffer, "1") == 0) play_song();
+    else if (strcmp(buffer, "2") == 0) server();
+    else if (strcmp(buffer, "3") == 0) client();
+
+    clear();
   }
 }
