@@ -9,10 +9,10 @@ int main() {
 
   char buffer[100];
 
-  printf("Hello, this is our music player final project! Type 'exit' to exit\n\n");
+  printf("Hello, this is our music player final project! Type 'exit' to exit.\n\n");
 
   while (1) {
-    printf("Your options are:\n1: Play a song\n2: Be the server\n3: Be the client\n\n");
+    printf("Your options are:\n1: Enter the music player\n2: Be the server\n3: Be the client\n\n");
 
     fgets(buffer, 100, stdin);
     buffer[strlen(buffer) - 1] = 0;
