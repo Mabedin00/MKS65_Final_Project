@@ -47,13 +47,16 @@ int server() {
       if (pids[counter] == 0) {
         signal(SIGHUP, sighandler_2);
         signal(SIGALRM, sighandler_3);
-        subserver(client_socket, songs_to_be_played);
+        signal(SIGILL, sighandler_4);
+        subserver(client_socket, songs_to_be_played, max_song_number);
       }
       else {
         counter++;
         close(client_socket);
+        if (counter < number_connections - 1) exit(0); // let one survive
     }
   }
+  
   sleep(1);
   // tell subservers game is starting
   int i;
@@ -82,37 +85,48 @@ int server() {
     } // end server else
     current_song_number++;
   }
+  for (i = 0; i < number_connections; i++) {
+    kill(pids[i], SIGILL);
+  }
 }
 
-void subserver(int client_socket, char ** songs_to_be_played) {
+void subserver(int client_socket, char ** songs_to_be_played, int max_song_number) {
   char receive_buffer[BUFFER_SIZE];
+  char full_path[BUFFER_SIZE];
   char send_buffer[BUFFER_SIZE];
   int current_song = 0;
 
   // wait until game start
   while (!game_start) sleep(.1);
-  strcpy(send_buffer, "Game start\n");
+  strcat(send_buffer, "Game start\n");
   write(client_socket, send_buffer, BUFFER_SIZE);
 
-  while (read(client_socket, receive_buffer, BUFFER_SIZE)) {
-    if (game_over == 1) { // if we should move onto next song
+  while (current_song < max_song_number && read(client_socket, receive_buffer, BUFFER_SIZE)) {
+    if (game_over > 0) { // if we should move onto next song
+      current_song += game_over; // in case game_over is > 1 (another user has guessed correctly twice)
       game_over = 0;
-      current_song++;
     }
     // if someone guesses correct song
-    if (!strcmp(receive_buffer, songs_to_be_played[current_song])) {
+    strcpy(full_path, "songs/");
+    
+    full_path[strlen(full_path)] = 0;
+    
+    strcat(full_path, receive_buffer);
+    strcat(full_path, ".wav");
+    
+    printf("Full path: %s\n", full_path);
+    printf("Current song: %d\n", current_song);
+    
+    if (!strcmp(full_path, songs_to_be_played[current_song])) {
       kill(getppid(), SIGSYS);
       strcpy(send_buffer, "You won!");
-      write(client_socket, send_buffer, sizeof(send_buffer));
+      write(client_socket, send_buffer, BUFFER_SIZE);
     }
     else {
       strcpy(send_buffer, "Incorrect guess");
-      write(client_socket, send_buffer, sizeof(send_buffer));
+      write(client_socket, send_buffer, BUFFER_SIZE);
     }
   }
-
-  close(client_socket);
-  exit(0);
 }
 
 int random_int(int min, int max) {
@@ -195,9 +209,17 @@ void sighandler() {
 }
 
 void sighandler_2() {
-    game_over = 1; // tell subservers we're moving onto next song
+    game_over++; // tell subservers we're moving onto next song
 }
 
 void sighandler_3() {
     game_start = 1; // tell subservers game has started
+}
+
+void sighandler_4() {
+  char send_buffer[BUFFER_SIZE];
+  strcpy(send_buffer, "die");
+  write(client_socket, send_buffer, BUFFER_SIZE);
+  close(client_socket);
+  exit(0);
 }

@@ -17,7 +17,7 @@ int client() {
   printf("Waiting for more players\n");
 
   read(server_socket, buffer, BUFFER_SIZE);
-  printf("Received from subserver: [%s]\n", buffer);
+  // printf("Received from subserver: %s\n", buffer);
   printf("Game starting\n");
 
   while (1) {
@@ -25,31 +25,12 @@ int client() {
     fgets(buffer, sizeof(buffer), stdin);
     *strchr(buffer, '\n') = '\0';
 
-    // removing all spaces
-    char format[BUFFER_SIZE];
-    int c = 0;
-    int b = 0;
-    int a = 0;
-    while (buffer[c] != '\0') {
-      if (buffer[c] == ' ') {
-        b = c + 1;
-        if (buffer[b] == ' ' && buffer[b] != '\0') {
-          if (buffer[b] == ' ') {
-            c++;
-          }
-          b++;
-        }
-      }
-      format[a] = buffer[c];
-      c++;
-      a++;
-    }
-
-    //printf("%s", format);
-
     write(server_socket, buffer, sizeof(buffer));
     *buffer = '\0';
     read(server_socket, buffer, sizeof(buffer));
-    printf("[%s]\n", buffer);
+    printf("Client received: %s\n", buffer);
+    if (!strcmp(buffer, "die")) break;
+    //printf("[%s]\n", buffer);
   }
+  printf("The game has ended. Thank you for playing\n");
 }
