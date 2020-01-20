@@ -8,6 +8,22 @@
 #include <fcntl.h>
 #include <signal.h>
 #include <time.h>
+#include <gtk/gtk.h>
+
+
+//TODO:
+
+
+// Visual play song
+// -2. Get queue to work          DON'T NEED
+// 0. Input IP
+// 1. Winning message             CHECK
+// 2. Don't move on               DON'T NEED
+// 3. Server has their own popup
+// 4. Ask for count players, songs
+// 5. Sync counter                DON'T NEED
+// 6. Add songs in some way       DON'T NEED
+// 7. Points, all
 
 // SIGSYS: subserver -> server (song guessed correctly)
 // SIGHUP: server -> all subservers (song guessed correctly)
@@ -19,6 +35,19 @@ int game_over = 0;
 int client_socket = 0;
 
 int server() {
+    // GtkWidget * window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    // g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
+    //
+    // GtkWidget * grid = gtk_grid_new();
+    // gtk_container_add(GTK_CONTAINER(window), grid);
+    // gtk_grid_set_row_spacing (GTK_GRID(grid), 25);
+    //
+    // GtkWidget * label = gtk_label_new("This is the server");
+    // gtk_grid_attach(GTK_GRID(grid), label, 0, 0, 1, 1);
+    //
+    // gtk_widget_show_all(window);
+    // gtk_main();
+
   int num_songs = ask_for_num_songs();
   int number_connections = ask_for_num_players();
   int max_song_number = max_songs();
@@ -64,6 +93,7 @@ int server() {
   // tell subservers game is starting
   int i;
   for (i = 0; i < number_connections; i++) {
+    // printf("Sending SIGALRM to [%d]\n", pids[i]);
     kill(pids[i], SIGALRM);
   }
 
@@ -79,12 +109,13 @@ int server() {
       f = fork();
       // this one is just a clock
       if (!f) {
-         sleep(11);
+         sleep(3);
          kill(getppid(), SIGSYS);
          exit(0);
       }
       // waits for song to be guessed or 15s to elapse
       else {
+
         signal(SIGSYS, sighandler);
         while(!game_over) sleep(.1);
         // reset game_over
@@ -110,10 +141,19 @@ void subserver(int client_socket, char ** songs_to_be_played, int max_song_numbe
   int current_song = 0;
 
   // wait until game start
-  while (!game_start) sleep(.1);
 
-  sprintf(send_buffer, "%d", max_song_number);
-  write(client_socket, send_buffer, BUFFER_SIZE);
+  strcpy(send_buffer, "N");
+  // printf("Game status (subserver): [%d]\n", game_start);
+  while (!game_start) {
+      // printf("[%d] game status in loop: [%d]\n", getpid(), game_start);
+      write(client_socket, send_buffer, BUFFER_SIZE);
+      sleep(1);
+  }
+
+  char send_data[BUFFER_SIZE];
+  sprintf(send_data, "%d", max_song_number);
+  // printf("Wrote %s to client\n", send_data);
+  write(client_socket, send_data, BUFFER_SIZE);
 
   while (current_song < max_song_number && read(client_socket, receive_buffer, BUFFER_SIZE)) {
     if (game_over > 0) { // if we should move onto next song
@@ -132,8 +172,8 @@ void subserver(int client_socket, char ** songs_to_be_played, int max_song_numbe
     printf("Current song: %d\n", current_song);
 
     if (!strcmp(full_path, songs_to_be_played[current_song])) {
-      kill(getppid(), SIGSYS);
-      strcpy(send_buffer, "You won!");
+      // kill(getppid(), SIGSYS);
+      strcpy(send_buffer, "W");
       write(client_socket, send_buffer, BUFFER_SIZE);
     }
     else {
@@ -231,6 +271,7 @@ void sighandler_2() {
 
 void sighandler_3() {
     game_start = 1; // tell subservers game has started
+    // printf("Game status (subservers): [%d]\n", game_start);
 }
 
 void sighandler_4() {

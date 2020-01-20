@@ -11,10 +11,10 @@ main.o: main.c play_song.h server.h client.h
 	$(CC) main.c `pkg-config --cflags gtk+-3.0` `pkg-config --libs gtk+-3.0`
 
 play_song.o: play_song.c play_song.h
-	$(CC) play_song.c
+	$(CC) play_song.c `pkg-config --cflags gtk+-3.0` `pkg-config --libs gtk+-3.0`
 
 server.o: server.c server.h networking.h play_song.h
-	$(CC) server.c
+	$(CC) server.c `pkg-config --cflags gtk+-3.0` `pkg-config --libs gtk+-3.0`
 
 client.o: client.c client.h networking.h play_song.h
 	$(CC) client.c `pkg-config --cflags gtk+-3.0` `pkg-config --libs gtk+-3.0`
@@ -23,7 +23,7 @@ networking.o: networking.c networking.h
 	$(CC) networking.c
 
 run:
-	GDK_SCALE=3 ./program
+	GDK_SCALE=2 ./program
 
 clean:
 	rm program
