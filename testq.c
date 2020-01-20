@@ -26,4 +26,8 @@ int main() {
      printf("Removed %s...\n", buffer);
 
      print_queue(&queue);
+
+     clear_queue(&queue);
+
+     print_queue(&queue);
 }
