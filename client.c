@@ -10,8 +10,10 @@ GtkWidget * timer;
 GtkWidget * alert;
 GtkWidget * grid;
 GtkWidget * points;
+GtkWidget * ip_input;
+GtkWidget * ip_label;
 
-int counter = 2;
+int counter = 30;
 int points_int = 0;
 int num_songs;
 int server_socket;
@@ -59,10 +61,10 @@ static int update() {
 
         // gtk_label_set_text(GTK_LABEL(timer), message);
 
-        if (counter < 0) {
+        if (counter <= 0) {
             guessed_current_song = 0;
             num_songs--;
-            counter = 2;
+            counter = 30;
             gtk_label_set_text(GTK_LABEL(alert), "New Song Playing!");
         }
         if (counter == 8) {
@@ -83,8 +85,8 @@ static int update() {
             gtk_widget_destroy(alert);
 
             GtkWidget * button3 = gtk_button_new_with_label("Return to MAIN page!");
-            gtk_grid_attach(GTK_GRID(grid), button2, 0, 1, 1, 1);
-            g_signal_connect(button2, "clicked", G_CALLBACK(return_to_main_page), NULL);
+            gtk_grid_attach(GTK_GRID(grid), button3, 0, 1, 1, 1);
+            g_signal_connect(button3, "clicked", G_CALLBACK(return_to_main_page), NULL);
 
             gtk_widget_show_all(window);
             gtk_main();
@@ -109,14 +111,40 @@ static int load_screen()  {
     return 1;
 }
 
+static int log_ip() {
+    char ip[BUFFER_SIZE];
+    strcpy(ip, (char *)gtk_entry_get_text(GTK_ENTRY(ip_input)));
+    server_socket = client_setup(ip);
+
+    gtk_widget_destroy(ip_label);
+    gtk_widget_destroy(ip_input);
+
+    timer = gtk_label_new("Timer");
+    gtk_grid_attach(GTK_GRID(grid), timer, 0, 0, 1, 1);
+    gtk_label_set_text(GTK_LABEL(timer), "Waiting for more players");
+
+    g_timeout_add_seconds (1, update, NULL);
+    g_timeout_add_seconds (1, load_screen, NULL);
+
+    button2 = gtk_button_new_with_label("Guess!");
+    gtk_grid_attach(GTK_GRID(grid), button2, 0, 1, 1, 1);
+    g_signal_connect(button2, "clicked", G_CALLBACK(enter_guess), NULL);
+
+    button = gtk_entry_new();
+    gtk_grid_attach(GTK_GRID(grid), button, 0, 2, 1, 1);
+
+    alert = gtk_label_new("");
+    gtk_grid_attach(GTK_GRID(grid), alert, 0, 3, 1, 1);
+
+    points = gtk_label_new("Points");
+    gtk_grid_attach(GTK_GRID(grid), points, 0, 4, 1, 1);
+
+    gtk_widget_show_all(window);
+    gtk_main();
+}
+
+
 int client() {
-  char receive_buffer[BUFFER_SIZE];
-  char ip[BUFFER_SIZE];
-  //fgets(ip, BUFFER_SIZE, stdin);
-  strcpy(ip, "127.0.0.1"); // for testing, change later
-  server_socket = client_setup(ip);
-
-
   window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
 
@@ -124,25 +152,12 @@ int client() {
   gtk_container_add(GTK_CONTAINER(window), grid);
   gtk_grid_set_row_spacing (GTK_GRID(grid), 25);
 
-  timer = gtk_label_new("Timer");
-  gtk_grid_attach(GTK_GRID(grid), timer, 0, 0, 1, 1);
-  gtk_label_set_text(GTK_LABEL(timer), "Waiting for more players");
+  ip_label = gtk_button_new_with_label("Enter the IP address of the desired host:");
+  gtk_grid_attach(GTK_GRID(grid), ip_label, 0, 0, 1, 1);
+  g_signal_connect(ip_label, "clicked", G_CALLBACK(log_ip), NULL);
 
-  g_timeout_add_seconds (1, update, NULL);
-  g_timeout_add_seconds (1, load_screen, NULL);
-
-  button2 = gtk_button_new_with_label("Guess!");
-  gtk_grid_attach(GTK_GRID(grid), button2, 0, 1, 1, 1);
-  g_signal_connect(button2, "clicked", G_CALLBACK(enter_guess), NULL);
-
-  button = gtk_entry_new();
-  gtk_grid_attach(GTK_GRID(grid), button, 0, 2, 1, 1);
-
-  alert = gtk_label_new("");
-  gtk_grid_attach(GTK_GRID(grid), alert, 0, 3, 1, 1);
-
-  points = gtk_label_new("Points");
-  gtk_grid_attach(GTK_GRID(grid), points, 0, 4, 1, 1);
+  ip_input = gtk_entry_new();
+  gtk_grid_attach(GTK_GRID(grid), ip_input, 0, 1, 1, 1);
 
   gtk_widget_show_all(window);
   gtk_main();
