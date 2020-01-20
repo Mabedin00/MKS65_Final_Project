@@ -129,8 +129,8 @@ static int run_server_code(int user_input_songs, int user_input_players) {
           if (!f) {
               // gtk_label_set_text(GTK_LABEL(song), songs_to_be_played[current_song_number]);
               printf("Playing %s\n", songs_to_be_played[current_song_number]);
-              exit(0);
-              // execlp("aplay", "aplay", songs_to_be_played[current_song_number], NULL);
+              //exit(0);
+              execlp("aplay", "aplay", songs_to_be_played[current_song_number], NULL);
           }
           // server that's not playing the song
           else {
