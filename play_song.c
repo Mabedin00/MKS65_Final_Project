@@ -4,6 +4,7 @@
 # include <stdio.h>
 # include <sys/wait.h>
 # include <gtk/gtk.h>
+# include "play_song.h"
 
 GtkWidget * enter_song;
 
