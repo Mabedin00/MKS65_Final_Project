@@ -4,6 +4,7 @@
 # include <stdio.h>
 # include <sys/wait.h>
 # include <gtk/gtk.h>
+# include "play_song.h"
 
 GtkWidget * enter_song;
 
@@ -58,6 +59,7 @@ void play_song () {
 
     gtk_widget_show_all(window);
     gtk_main();
+}
   // char buffer[100];
   //
   // clear();
@@ -96,4 +98,3 @@ void play_song () {
     //     execlp("aplay", "aplay", song_path, NULL);
     //   }
     // }
-}
