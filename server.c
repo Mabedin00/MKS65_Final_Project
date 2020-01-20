@@ -13,7 +13,6 @@
 
 //TODO:
 
-
 // Visual play song
 // -2. Get queue to work          DON'T NEED
 // 0. Input IP
@@ -24,6 +23,9 @@
 // 5. Sync counter                DON'T NEED
 // 6. Add songs in some way       DON'T NEED
 // 7. Points, all
+// 8. Make interface pretty
+
+// ** comment out aplay, test on skewl machines
 
 // SIGSYS: subserver -> server (song guessed correctly)
 // SIGHUP: server -> all subservers (song guessed correctly)
@@ -33,105 +35,130 @@
 int game_start = 0;
 int game_over = 0;
 int client_socket = 0;
+int ran_run_server_code = 0;
 
-int server() {
-    // GtkWidget * window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    // g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
-    //
-    // GtkWidget * grid = gtk_grid_new();
-    // gtk_container_add(GTK_CONTAINER(window), grid);
-    // gtk_grid_set_row_spacing (GTK_GRID(grid), 25);
-    //
-    // GtkWidget * label = gtk_label_new("This is the server");
-    // gtk_grid_attach(GTK_GRID(grid), label, 0, 0, 1, 1);
-    //
-    // gtk_widget_show_all(window);
-    // gtk_main();
+GtkWidget * song;
 
-  int num_songs = ask_for_num_songs();
-  int number_connections = ask_for_num_players();
-  int max_song_number = max_songs();
-  int listen_socket = server_setup();
-  int current_song_number = 0;
-  int pids[number_connections];
-  char * songs_to_be_played[num_songs];
-  char buffer[100];
+static int return_to_main_page() {
+    gtk_main_quit();
+    gtk_main_quit();
+    execlp("make", "make", "run", NULL);
+}
 
-  srand(time(NULL)); // needed later for random_song()
+static int run_server_code() {
+    printf("Running run_server_code\n");
+    if (!ran_run_server_code) {
+        ran_run_server_code = 1;
+        printf("Running run_server_code inside if\n");
+        int num_songs = ask_for_num_songs();
+        int number_connections = ask_for_num_players();
+        int max_song_number = max_songs();
+        int listen_socket = server_setup();
+        int current_song_number = 0;
+        int pids[number_connections];
+        char * songs_to_be_played[num_songs];
+        char buffer[100];
 
-  clear();
-  printf("Waiting for connections...\n");
-  // populate songs_to_be_played with random songs
-  int counter = 0;
-  while (counter < num_songs) {
-    songs_to_be_played[counter] = random_song();
-    while (is_duplicate(songs_to_be_played, counter)) {
-      songs_to_be_played[counter] = random_song();
-    }
-    counter++;
-  }
+        srand(time(NULL)); // needed later for random_song()
 
-  // get all players connected
-  counter = 0;
-  while (counter < number_connections) {
-    client_socket = server_connect(listen_socket);
-      pids[counter] = fork();
-      if (pids[counter] == 0) {
-        signal(SIGHUP, sighandler_2);
-        signal(SIGALRM, sighandler_3);
-        signal(SIGILL, sighandler_4);
-        subserver(client_socket, songs_to_be_played, max_song_number);
-      }
-      else {
-        counter++;
-        close(client_socket);
-        // if (counter < number_connections - 1) exit(0);
-    }
-  }
+        clear();
+        printf("Waiting for connections...\n");
+        // populate songs_to_be_played with random songs
+        int counter = 0;
+        while (counter < num_songs) {
+          songs_to_be_played[counter] = random_song();
+          while (is_duplicate(songs_to_be_played, counter)) {
+            songs_to_be_played[counter] = random_song();
+          }
+          counter++;
+        }
 
-  sleep(1);
-  // tell subservers game is starting
-  int i;
-  for (i = 0; i < number_connections; i++) {
-    // printf("Sending SIGALRM to [%d]\n", pids[i]);
-    kill(pids[i], SIGALRM);
-  }
+        // get all players connected
+        counter = 0;
+        while (counter < number_connections) {
+          client_socket = server_connect(listen_socket);
+            pids[counter] = fork();
+            if (pids[counter] == 0) {
+              signal(SIGHUP, sighandler_2);
+              signal(SIGALRM, sighandler_3);
+              signal(SIGILL, sighandler_4);
+              subserver(client_socket, songs_to_be_played, max_song_number);
+            }
+            else {
+              counter++;
+              close(client_socket);
+              // if (counter < number_connections - 1) exit(0);
+          }
+        }
 
-  while (current_song_number < num_songs) {
-    int f = fork();
-    // one process plays the song
-    if (!f) {
-        printf("Next song: %s\n", songs_to_be_played[current_song_number]);
-        execlp("aplay", "aplay", songs_to_be_played[current_song_number], NULL);
-    }
-    // server that's not playing the song
-    else {
-      f = fork();
-      // this one is just a clock
-      if (!f) {
-         sleep(3);
-         kill(getppid(), SIGSYS);
-         exit(0);
-      }
-      // waits for song to be guessed or 15s to elapse
-      else {
-
-        signal(SIGSYS, sighandler);
-        while(!game_over) sleep(.1);
-        // reset game_over
-        game_over = 0;
-        // tell subservers to move on to next song
+        sleep(1);
+        // tell subservers game is starting
         int i;
         for (i = 0; i < number_connections; i++) {
-          kill(pids[i], SIGHUP);
+          // printf("Sending SIGALRM to [%d]\n", pids[i]);
+          kill(pids[i], SIGALRM);
         }
-      }
-    } // end server else
-    current_song_number++;
-  }
-  for (i = 0; i < number_connections; i++) {
-    kill(pids[i], SIGILL);
-  }
+
+        while (current_song_number < num_songs) {
+          int f = fork();
+          // one process plays the song
+          if (!f) {
+              gtk_label_set_text(GTK_LABEL(song), songs_to_be_played[current_song_number]);
+              execlp("aplay", "aplay", songs_to_be_played[current_song_number], NULL);
+          }
+          // server that's not playing the song
+          else {
+            f = fork();
+            // this one is just a clock
+            if (!f) {
+               sleep(3);
+               kill(getppid(), SIGSYS);
+               exit(0);
+            }
+            // waits for song to be guessed or 15s to elapse
+            else {
+
+              signal(SIGSYS, sighandler);
+              while(!game_over) sleep(.1);
+              // reset game_over
+              game_over = 0;
+              // tell subservers to move on to next song
+              int i;
+              for (i = 0; i < number_connections; i++) {
+                kill(pids[i], SIGHUP);
+              }
+            }
+          } // end server else
+          current_song_number++;
+        }
+        for (i = 0; i < number_connections; i++) {
+          kill(pids[i], SIGILL);
+        }
+        return_to_main_page();
+    }
+    else {
+        return 1;
+    }
+}
+
+int server() {
+    GtkWidget * window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
+
+    GtkWidget * grid = gtk_grid_new();
+    gtk_container_add(GTK_CONTAINER(window), grid);
+    gtk_grid_set_row_spacing (GTK_GRID(grid), 25);
+
+    GtkWidget * label = gtk_label_new("This is the server");
+    gtk_grid_attach(GTK_GRID(grid), label, 0, 0, 1, 1);
+
+    song = gtk_label_new("Current song: ");
+    gtk_grid_attach(GTK_GRID(grid), song, 0, 1, 1, 1);
+
+    g_timeout_add_seconds (1, run_server_code, NULL);
+
+    gtk_widget_show_all(window);
+    gtk_main();
 }
 
 void subserver(int client_socket, char ** songs_to_be_played, int max_song_number) {
