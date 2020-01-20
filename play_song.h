@@ -1,4 +1,4 @@
 void play_song();
-void play_a_song();
+static int play_songs();
 void clear();
 void execute();
