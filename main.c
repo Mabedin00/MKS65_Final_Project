@@ -10,6 +10,7 @@
 GtkWidget * window;
 
 void press_button() {
+    gtk_widget_destroy(window);
     play_song();
 }
 void press_button1() {

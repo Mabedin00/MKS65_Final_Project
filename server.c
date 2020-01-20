@@ -152,9 +152,6 @@ int server() {
     GtkWidget * label = gtk_label_new("This is the server");
     gtk_grid_attach(GTK_GRID(grid), label, 0, 0, 1, 1);
 
-    song = gtk_label_new("Current song: ");
-    gtk_grid_attach(GTK_GRID(grid), song, 0, 1, 1, 1);
-
     g_timeout_add_seconds (1, run_server_code, NULL);
 
     gtk_widget_show_all(window);
