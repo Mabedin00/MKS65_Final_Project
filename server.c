@@ -144,7 +144,7 @@ static int run_server_code() {
             f = fork();
             // this one is just a clock
             if (!f) {
-               sleep(16);
+               sleep(15);
                kill(getppid(), SIGSYS);
                exit(0);
             }
@@ -218,11 +218,6 @@ void subserver(int client_socket, char ** songs_to_be_played, char ** incorrect_
       sleep(1);
   }
 
-  char send_data[BUFFER_SIZE];
-  // telling clients how many songs will be playing total
-  // sprintf(send_data, "%d", user_input_songs);
-  // printf("Server says there are %d songs\n", user_input_songs);
-
   int counter;
   char all_songs[BUFFER_SIZE];
   all_songs[0] = '\0';
@@ -237,7 +232,7 @@ void subserver(int client_socket, char ** songs_to_be_played, char ** incorrect_
       printf("%d %d\n", counter, user_input_songs);
   }
   strcat(all_songs, "\0");
-  printf("all_songs: %s\n", all_songs);
+  printf("all_songs: %s, %ld\n", all_songs, strlen(all_songs));
   write(client_socket, all_songs, BUFFER_SIZE);
 
   while (current_song < user_input_songs && read(client_socket, receive_buffer, BUFFER_SIZE)) {
@@ -252,8 +247,6 @@ void subserver(int client_socket, char ** songs_to_be_played, char ** incorrect_
     strcat(full_path, receive_buffer);
     strcat(full_path, ".wav,");
 
-    printf("received %s\n", full_path);
-    printf("correct answer: %s\n", songs_to_be_played[current_song]);
     if (!strcmp(full_path, songs_to_be_played[current_song])) {
       strcpy(send_buffer, "W");
       write(client_socket, send_buffer, BUFFER_SIZE);

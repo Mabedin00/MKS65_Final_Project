@@ -46,7 +46,7 @@ void scramble_order () {
 char * extract_song(char * raw_song) {
     raw_song += 6;
     raw_song[strlen(raw_song) - 4] = 0;
-    printf("%s\n", raw_song);
+    printf("Extract: %s\n", raw_song);
     return raw_song;
 }
 
@@ -135,9 +135,9 @@ static int update() {
 
 static int load_screen()  {
     char receive_buffer[BUFFER_SIZE];
-    char * ptr = receive_buffer;
     read(server_socket, receive_buffer, BUFFER_SIZE);
-    // printf("Received from server: [%s]\n", receive_buffer);
+    char * ptr = receive_buffer;
+    printf("Received from server: [%s]\n", receive_buffer);
 
     char temp_options[30][BUFFER_SIZE];
     if (strcmp(receive_buffer, "N") != 0) {
