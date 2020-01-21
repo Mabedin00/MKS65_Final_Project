@@ -52,14 +52,11 @@ static int play_queue() {
         dequeue(&yourQ, buffer);
         int f = fork();
         if (!f) {
-            printf("%s\n", buffer);
             execlp("aplay", "aplay", buffer, NULL);
         }
         else {
-            printf("Waiting for child process\n");
             int w;
             wait(&w);
-            printf("Finished waiting\n");
         }
     }
 }

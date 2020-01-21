@@ -48,7 +48,6 @@ void scramble_order () {
 char * extract_song(char * raw_song) {
     raw_song += 6;
     raw_song[strlen(raw_song) - 4] = 0;
-    printf("Extract: %s\n", raw_song);
     return raw_song;
 }
 
@@ -61,7 +60,6 @@ void process_option(int option) {
     strcpy(send_buffer, options[(current_song) * 4 + option]);
     write(server_socket, send_buffer, BUFFER_SIZE);
     read(server_socket, read_buffer, BUFFER_SIZE);
-    printf("Read buffer: %s\n", read_buffer);
     if (!strcmp(read_buffer, "W") && !guessed_current_song) {
         points_int += counter;
         guessed_current_song = 1;
@@ -141,15 +139,12 @@ static int load_screen()  {
     char receive_buffer[BUFFER_SIZE];
     read(server_socket, receive_buffer, BUFFER_SIZE);
     char * ptr = receive_buffer;
-    printf("Received from server: [%s]\n", receive_buffer);
 
     char temp_options[30][BUFFER_SIZE];
     if (strcmp(receive_buffer, "N") != 0) {
         int i;
-        // printf("%s\n", receive_buffer);
     	for (i = 0; ptr != NULL; i++) {
     		strcpy(temp_options[i], extract_song(strsep(&ptr, ",")));
-            // printf("Song: [%d]: %s\n", i, options[i]);
     	}
 
         num_songs = i / 4;
@@ -206,7 +201,6 @@ static int log_ip() {
     points = gtk_label_new("Points");
     gtk_grid_attach(GTK_GRID(grid), points, 0, 5, 3, 1);
 
-    // printf("options[0]: %s\n", options[0]);
     option0 = gtk_button_new_with_label(options[0]);
     gtk_grid_attach(GTK_GRID(grid), option0, 2, 0, 1, 1);
     g_signal_connect(option0, "clicked", G_CALLBACK(option_pressed0), NULL);

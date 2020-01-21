@@ -8,14 +8,12 @@
 // print_queue :: outputs the contents of the queue
 void print_queue(struct songQ* queue) {
     struct song* current = queue->first;
-    printf("Up next...\n");
     int i = 1;
      while (current) {
           printf("\t%d) %s\n", i, current->name);
           current = current->next;
           i++;
      }
-     printf("\n");
 }
 
 // remove_song :: removes target song from queue

@@ -76,24 +76,18 @@ static int run_server_code() {
         srand(time(NULL)); // needed later for random_song()
 
         clear();
-        printf("Waiting for connections...\n");
         // populate songs_to_be_played with random songs
         int counter = 0;
-        printf("user_input_songs: [%d]\n", user_input_songs);
         while (counter < user_input_songs) {
           songs_to_be_played[counter] = random_song();
-          // free(songs_to_be_played[counter]);
           int i = 0;
           while (i < 3) {
               int current_incorrect_option = i + counter * (NUM_OPTIONS - 1);
               incorrect_options[current_incorrect_option] = random_song();
-              // free(incorrect_options[current_incorrect_option]);
-              printf("%d\n", strcmp(incorrect_options[current_incorrect_option], "songs/."));
               // if the current incorrect song equals current correct song, or ., or .., we reroll
               while (is_duplicate(incorrect_options, (counter * 3), (counter * 3) + i)
                   || !strcmp(incorrect_options[current_incorrect_option], songs_to_be_played[counter])) {
                   incorrect_options[current_incorrect_option] = random_song();
-                  // free(incorrect_options[current_incorrect_option]);
               }
               i++;
           }
@@ -103,19 +97,8 @@ static int run_server_code() {
           counter++;
         }
 
-        printf("Songs to be played: \n");
-        for (counter = 0; counter < user_input_songs; counter++) {
-            printf("[%d] : [%s]\n", counter, songs_to_be_played[counter]);
-        }
-
-        printf("Incorrect options: \n");
-        for (counter = 0; counter < user_input_songs * 3; counter++) {
-            printf("[%d] : [%s]\n", counter, incorrect_options[counter]);
-        }
-
         // get all players connected
         counter = 0;
-        printf("user_input_players: [%d]\n", user_input_players);
         while (counter < user_input_players) {
           client_socket = server_connect(listen_socket);
             pids[counter] = fork();
@@ -135,7 +118,6 @@ static int run_server_code() {
         sleep(1);
         int i;
         for (i = 0; i < user_input_players; i++) {
-          // printf("Sending SIGALRM to [%d]\n", pids[i]);
           kill(pids[i], SIGALRM);
         }
 
@@ -232,18 +214,14 @@ void subserver(int client_socket, char ** songs_to_be_played, char ** incorrect_
   int counter;
   char all_songs[BUFFER_SIZE];
   all_songs[0] = '\0';
-  // printf("all_songs: %s (before)\n", all_songs);
 
   for (counter = 0; counter < user_input_songs; counter++) {
       strcat(all_songs, strcat(songs_to_be_played[counter],","));
       strcat(all_songs, strcat(incorrect_options[(counter * 3) + 0],","));
       strcat(all_songs, strcat(incorrect_options[(counter * 3) + 1],","));
       strcat(all_songs, strcat(incorrect_options[(counter * 3) + 2],","));
-      printf("%s\n", incorrect_options[(counter * 3) + 2]);
-      printf("%d %d\n", counter, user_input_songs);
   }
   strcat(all_songs, "\0");
-  printf("all_songs: %s, %ld\n", all_songs, strlen(all_songs));
   write(client_socket, all_songs, BUFFER_SIZE);
 
   while (current_song < user_input_songs && read(client_socket, receive_buffer, BUFFER_SIZE)) {
@@ -322,7 +300,6 @@ int max_songs() {
 }
 
 void sighandler() {
-    printf("Game over nerds\n");
     execute("killall", "aplay");
     game_over = 1;
 }
