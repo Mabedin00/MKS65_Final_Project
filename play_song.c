@@ -7,6 +7,7 @@
 # include "play_song.h"
 
 GtkWidget * enter_song;
+GtkWidget * window;
 
 static int return_to_main_page() {
     gtk_main_quit();
@@ -24,16 +25,28 @@ void clear() {
 }
 
 static int play_songs() {
-    char full_path[100];
-    strcpy(full_path, "songs/");
-    full_path[strlen(full_path)] = 0;
-    strcat(full_path, (char *)gtk_entry_get_text(GTK_ENTRY(enter_song)));
-    strcat(full_path, ".wav");
-    execute("aplay", full_path);
+    GtkWidget * dialog;
+    dialog = gtk_file_chooser_dialog_new (NULL, GTK_WINDOW(window), GTK_FILE_CHOOSER_ACTION_OPEN, ("_Cancel"),
+                                      GTK_RESPONSE_CANCEL,
+                                      ("_Add"),
+                                      GTK_RESPONSE_ACCEPT,NULL);
+
+    GtkFileChooser * chooser = GTK_FILE_CHOOSER (dialog);
+
+
+    int res = gtk_dialog_run (GTK_DIALOG (dialog));
+    char * filename;
+    if (res == GTK_RESPONSE_ACCEPT) {
+        GtkFileChooser *chooser = GTK_FILE_CHOOSER (dialog);
+        filename = gtk_file_chooser_get_filename (chooser);
+        if (fork()) execlp("aplay", "aplay", filename, NULL);
+      }
+
+    gtk_widget_destroy (dialog);
 }
 
 void play_song () {
-    GtkWidget * window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
 
     GtkWidget * grid = gtk_grid_new();
@@ -43,11 +56,9 @@ void play_song () {
     GtkWidget * option = gtk_label_new("Play a song");
     gtk_grid_attach(GTK_GRID(grid), option, 0, 0, 1, 1);
 
-    enter_song = gtk_entry_new();
-    gtk_grid_attach(GTK_GRID(grid), enter_song, 0, 1, 1, 1);
 
-    GtkWidget * button = gtk_button_new_with_label("Enter");
-    gtk_grid_attach(GTK_GRID(grid), button, 0, 2, 1, 1);
+    GtkWidget * button = gtk_button_new_with_label("Click to select a song");
+    gtk_grid_attach(GTK_GRID(grid), button, 0, 1, 1, 1);
     g_signal_connect(button, "clicked", G_CALLBACK(play_songs), NULL);
 
     GtkWidget * return_to_main_page_button = gtk_button_new_with_label("Return to main page!");
