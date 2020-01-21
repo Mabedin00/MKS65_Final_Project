@@ -30,6 +30,7 @@ GtkWidget * count_players;
 GtkWidget * count_songs;
 GtkWidget * explanation;
 GtkWidget * window;
+GtkWidget * player_description;
 
 static int init_server() {
     user_input_songs = atoi((char *)gtk_entry_get_text(GTK_ENTRY(count_songs)));
@@ -42,6 +43,7 @@ static int init_server() {
     else {
         gtk_widget_destroy(count_songs);
         gtk_widget_destroy(submit);
+        gtk_widget_destroy(player_description);
         gtk_label_set_text(GTK_LABEL(explanation), "Server now running!");
         user_input_players = atoi((char *)gtk_entry_get_text(GTK_ENTRY(count_players)));
         gtk_widget_destroy(count_players);
@@ -80,20 +82,22 @@ static int run_server_code() {
         printf("user_input_songs: [%d]\n", user_input_songs);
         while (counter < user_input_songs) {
           songs_to_be_played[counter] = random_song();
+          // free(songs_to_be_played[counter]);
           int i = 0;
           while (i < 3) {
               int current_incorrect_option = i + counter * (NUM_OPTIONS - 1);
               incorrect_options[current_incorrect_option] = random_song();
+              // free(incorrect_options[current_incorrect_option]);
               printf("%d\n", strcmp(incorrect_options[current_incorrect_option], "songs/."));
               // if the current incorrect song equals current correct song, or ., or .., we reroll
-              while (!strcmp(incorrect_options[current_incorrect_option], songs_to_be_played[counter])
-                  || !strcmp(incorrect_options[current_incorrect_option], "songs/.")
-                  || !strcmp(incorrect_options[current_incorrect_option], "songs/..")) {
+              while (is_duplicate(incorrect_options, (counter * 3), (counter * 3) + i)
+                  || !strcmp(incorrect_options[current_incorrect_option], songs_to_be_played[counter])) {
                   incorrect_options[current_incorrect_option] = random_song();
+                  // free(incorrect_options[current_incorrect_option]);
               }
               i++;
           }
-          while (is_duplicate(songs_to_be_played, counter)) {
+          while (is_duplicate(songs_to_be_played, 0, counter)) {
             songs_to_be_played[counter] = random_song();
           }
           counter++;
@@ -182,24 +186,31 @@ int server() {
     gtk_container_add(GTK_CONTAINER(window), grid);
     gtk_grid_set_row_spacing (GTK_GRID(grid), 25);
 
-    submit = gtk_button_new_with_label("Click to submit selections (1. players) (2. songs)");
-    gtk_grid_attach(GTK_GRID(grid), submit, 0, 0, 1, 1);
+    submit = gtk_button_new_with_label("Submit");
+    gtk_grid_attach(GTK_GRID(grid), submit, 0, 2, 2, 1);
     g_signal_connect(submit, "clicked", G_CALLBACK(init_server), NULL);
 
+    player_description = gtk_label_new("Input number of players:");
+    gtk_grid_attach(GTK_GRID(grid), player_description, 0, 0, 1, 1);
+
     count_players = gtk_entry_new();
-    gtk_grid_attach(GTK_GRID(grid), count_players, 0, 1, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), count_players, 1, 0, 1, 1);
 
     count_songs = gtk_entry_new();
-    gtk_grid_attach(GTK_GRID(grid), count_songs, 0, 2, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), count_songs, 1, 1, 1, 1);
 
-    char explanation_label[BUFFER_SIZE] = "Please input at most ";
+    char explanation_label[BUFFER_SIZE] = "Input number of songs: (please input at most ";
     char num_songs[BUFFER_SIZE];
     sprintf(num_songs, "%d", max_songs());
     strcat(explanation_label, num_songs);
-    strcat(explanation_label, " songs. (That is how many are in your songs directory)");
+    strcat(explanation_label, " \nsongs, that is how many are in your songs directory)");
 
     explanation = gtk_label_new(explanation_label);
-    gtk_grid_attach(GTK_GRID(grid), explanation, 0, 3, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), explanation, 0, 1, 1, 1);
+
+    GtkWidget * return_to_main_page_button = gtk_button_new_with_label("Return to main page!");
+    gtk_grid_attach(GTK_GRID(grid), return_to_main_page_button, 0, 3, 2, 1);
+    g_signal_connect(return_to_main_page_button, "clicked", G_CALLBACK(return_to_main_page), NULL);
 
     gtk_widget_show_all(window);
     gtk_main();
@@ -285,9 +296,9 @@ char * random_song() {
 }
 
 // check if is already inside, or if is '.' or '..'
-int is_duplicate(char ** songs_to_be_played, int index) {
+int is_duplicate(char ** songs_to_be_played, int start, int index) {
     int i;
-    for (i = 0; i < index; i++) {
+    for (i = start; i < index; i++) {
       if (!strcmp(songs_to_be_played[i], songs_to_be_played[index])) {
         return 1;
       }

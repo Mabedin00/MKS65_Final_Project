@@ -18,6 +18,8 @@ GtkWidget * option0;
 GtkWidget * option1;
 GtkWidget * option2;
 GtkWidget * option3;
+GtkWidget * ip_input_label;
+GtkWidget * username_input_label;
 
 char options[30][BUFFER_SIZE];
 
@@ -182,6 +184,9 @@ static int log_ip() {
     gtk_widget_destroy(ip_label);
     gtk_widget_destroy(ip_input);
     gtk_widget_destroy(username);
+    gtk_widget_destroy(ip_input_label);
+    gtk_widget_destroy(username_input_label);
+
 
     timer = gtk_label_new("Timer");
     gtk_grid_attach(GTK_GRID(grid), timer, 0, 0, 1, 1);
@@ -231,15 +236,22 @@ int client() {
   gtk_container_add(GTK_CONTAINER(window), grid);
   gtk_grid_set_row_spacing (GTK_GRID(grid), 25);
 
-  ip_label = gtk_button_new_with_label("Enter (1. Desired IP) (2. Your username):");
-  gtk_grid_attach(GTK_GRID(grid), ip_label, 0, 0, 1, 1);
+  ip_label = gtk_button_new_with_label("Submit");
+  gtk_grid_attach(GTK_GRID(grid), ip_label, 0, 2, 2, 1);
   g_signal_connect(ip_label, "clicked", G_CALLBACK(log_ip), NULL);
 
   ip_input = gtk_entry_new();
-  gtk_grid_attach(GTK_GRID(grid), ip_input, 0, 1, 1, 1);
+  gtk_grid_attach(GTK_GRID(grid), ip_input, 1, 0, 1, 1);
+
+  ip_input_label = gtk_label_new("Enter the ip address:");
+  gtk_grid_attach(GTK_GRID(grid), ip_input_label, 0, 0, 1, 1);
 
   username = gtk_entry_new();
-  gtk_grid_attach(GTK_GRID(grid), username, 0, 2, 1, 1);
+  gtk_grid_attach(GTK_GRID(grid), username, 1, 1, 1, 1);
+
+  username_input_label = gtk_label_new("Enter a username:");
+  gtk_grid_attach(GTK_GRID(grid), username_input_label, 0, 1, 1, 1);
+
 
   gtk_widget_show_all(window);
   gtk_main();

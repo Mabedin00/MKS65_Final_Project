@@ -29,7 +29,7 @@ library.o: library.c library.h
 	$(CC) library.c
 
 run:
-	GDK_SCALE=2 ./program
+	./program
 
 clean:
 	rm program
