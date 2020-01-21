@@ -99,7 +99,9 @@ static int update() {
         gtk_label_set_text(GTK_LABEL(timer), message);
 
         char points_display[BUFFER_SIZE] = "Current points: ";
-        sprintf(points_display, "%d", points_int);
+        char store_points[BUFFER_SIZE];
+        sprintf(store_points, "%d", points_int);
+        strcat(points_display, store_points);
         gtk_label_set_text(GTK_LABEL(points), points_display);
 
         if (counter <= 0) {
