@@ -15,6 +15,8 @@
 // SIGALRM: server -> subserver (game has started / all users connected)
 // SIGILL: server -> subserver (game has ended / played last song)
 
+#define NUM_OPTIONS 4
+
 int game_start = 0;
 int game_over = 0;
 int client_socket = 0;
@@ -60,14 +62,13 @@ static int return_to_main_page() {
 }
 
 static int run_server_code() {
-    printf("Running run_server_code\n");
     if (!ran_run_server_code) {
         ran_run_server_code = 1;
-        printf("Running run_server_code inside if\n");
         int listen_socket = server_setup();
         int current_song_number = 0;
         int pids[user_input_players];
         char * songs_to_be_played[user_input_songs];
+        char * incorrect_options[user_input_songs * (NUM_OPTIONS - 1)];
         char buffer[0];
 
         srand(time(NULL)); // needed later for random_song()
@@ -79,10 +80,33 @@ static int run_server_code() {
         printf("user_input_songs: [%d]\n", user_input_songs);
         while (counter < user_input_songs) {
           songs_to_be_played[counter] = random_song();
+          int i = 0;
+          while (i < 3) {
+              int current_incorrect_option = i + counter * (NUM_OPTIONS - 1);
+              incorrect_options[current_incorrect_option] = random_song();
+              printf("%d\n", strcmp(incorrect_options[current_incorrect_option], "songs/."));
+              // if the current incorrect song equals current correct song, or ., or .., we reroll
+              while (!strcmp(incorrect_options[current_incorrect_option], songs_to_be_played[counter])
+                  || !strcmp(incorrect_options[current_incorrect_option], "songs/.")
+                  || !strcmp(incorrect_options[current_incorrect_option], "songs/..")) {
+                  incorrect_options[current_incorrect_option] = random_song();
+              }
+              i++;
+          }
           while (is_duplicate(songs_to_be_played, counter)) {
             songs_to_be_played[counter] = random_song();
           }
           counter++;
+        }
+
+        printf("Songs to be played: \n");
+        for (counter = 0; counter < user_input_songs; counter++) {
+            printf("[%d] : [%s]\n", counter, songs_to_be_played[counter]);
+        }
+
+        printf("Incorrect options: \n");
+        for (counter = 0; counter < user_input_songs * 3; counter++) {
+            printf("[%d] : [%s]\n", counter, incorrect_options[counter]);
         }
 
         // get all players connected
@@ -95,7 +119,7 @@ static int run_server_code() {
               signal(SIGHUP, sighandler_2);
               signal(SIGALRM, sighandler_3);
               signal(SIGILL, sighandler_4);
-              subserver(client_socket, songs_to_be_played);
+              subserver(client_socket, songs_to_be_played, incorrect_options);
             }
             else {
               counter++;
@@ -120,7 +144,7 @@ static int run_server_code() {
             f = fork();
             // this one is just a clock
             if (!f) {
-               sleep(6);
+               sleep(16);
                kill(getppid(), SIGSYS);
                exit(0);
             }
@@ -181,12 +205,13 @@ int server() {
     gtk_main();
 }
 
-void subserver(int client_socket, char ** songs_to_be_played) {
+void subserver(int client_socket, char ** songs_to_be_played, char ** incorrect_options) {
   char receive_buffer[BUFFER_SIZE];
   char full_path[BUFFER_SIZE];
   char send_buffer[BUFFER_SIZE];
   int current_song = 0;
 
+  strcpy(send_buffer, "N");
   // wait until game start
   while (!game_start) {
       write(client_socket, send_buffer, BUFFER_SIZE);
@@ -195,8 +220,25 @@ void subserver(int client_socket, char ** songs_to_be_played) {
 
   char send_data[BUFFER_SIZE];
   // telling clients how many songs will be playing total
-  sprintf(send_data, "%d", user_input_songs);
-  write(client_socket, send_data, BUFFER_SIZE);
+  // sprintf(send_data, "%d", user_input_songs);
+  // printf("Server says there are %d songs\n", user_input_songs);
+
+  int counter;
+  char all_songs[BUFFER_SIZE];
+  all_songs[0] = '\0';
+  // printf("all_songs: %s (before)\n", all_songs);
+
+  for (counter = 0; counter < user_input_songs; counter++) {
+      strcat(all_songs, strcat(songs_to_be_played[counter],","));
+      strcat(all_songs, strcat(incorrect_options[(counter * 3) + 0],","));
+      strcat(all_songs, strcat(incorrect_options[(counter * 3) + 1],","));
+      strcat(all_songs, strcat(incorrect_options[(counter * 3) + 2],","));
+      printf("%s\n", incorrect_options[(counter * 3) + 2]);
+      printf("%d %d\n", counter, user_input_songs);
+  }
+  strcat(all_songs, "\0");
+  printf("all_songs: %s\n", all_songs);
+  write(client_socket, all_songs, BUFFER_SIZE);
 
   while (current_song < user_input_songs && read(client_socket, receive_buffer, BUFFER_SIZE)) {
     // if we should move onto next song
@@ -205,12 +247,13 @@ void subserver(int client_socket, char ** songs_to_be_played) {
       current_song += game_over;
       game_over = 0;
     }
-    // if someone guesses correct song
     strcpy(full_path, "songs/");
     full_path[strlen(full_path)] = 0;
     strcat(full_path, receive_buffer);
-    strcat(full_path, ".wav");
+    strcat(full_path, ".wav,");
 
+    printf("received %s\n", full_path);
+    printf("correct answer: %s\n", songs_to_be_played[current_song]);
     if (!strcmp(full_path, songs_to_be_played[current_song])) {
       strcpy(send_buffer, "W");
       write(client_socket, send_buffer, BUFFER_SIZE);
@@ -295,3 +338,7 @@ void sighandler_4() {
   close(client_socket);
   exit(0);
 }
+
+
+// function to give the stufff():
+//
