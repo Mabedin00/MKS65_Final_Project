@@ -54,5 +54,5 @@ This project uitilizes networking, so you might need to ssh into the school comp
     1. Entering more than 5 songs as the host will cause the buffers to overflow
         - This can be easily fixed by increasing BUFFER_SIZE in network.h, 
         but we found it unnecessary for testing purposes
-    
-    2. There are un freed memory blocks, not sure where they went ¯\_(ツ)_/¯
+    2. Duplicate answer choices
+    3. There are un freed memory blocks, not sure where they went ¯\_(ツ)_/¯
