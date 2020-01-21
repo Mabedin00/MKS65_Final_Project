@@ -1,0 +1,69 @@
+DISCLAIMER: These logs are estimated using commit history and memory
+
+Brian Moses 16:00 01-04-2020
+    - Added song playing using execvp aplay
+    - Added terminal choices
+
+Ahmed Sultan 11:20 01-10-2020
+    - Started working on library.c
+
+Mohidul Abedin, Brian Moses 22:30 01-10-2020
+    - Added basic networking code
+
+Mohidul Abedin, Brian Moses 16:30 01-12-2020
+    - finished basic game functions
+
+Mohidul Abedin 18:00 01-12-2020
+    - Updated Readme
+
+Brian Moses 11:30 01-14-2020
+    - Added 2 new songs
+
+Tejas Narayan 11:30 01-14-2020
+    - Added queue structs
+
+Mohidul Abedin 11:30 01-14-2020
+    - Added random song picker
+
+Tejas Narayan 11:30 01-15-2020
+    - Added add_to_queue function
+
+Ahmed Sultan 11:30 01-15-2020
+    - Added remove_spaces function
+
+Tejas Narayan 11:50 01-15-2020
+    - Added remove_from_queue function
+
+Tejas Narayan 11:30 01-16-2020
+    - Final changes to library files
+
+Mohidul Abedin 11:00 01-16-2020
+    - Finished client side
+
+Tejas Narayan 11:36 01-17-2020
+    - bug fixes
+
+Ahmed Sultan 11:36 01-17-2020
+    - testing library.c
+
+Mohidul Abedin, Brian Moses 22:35 10-17-2020
+    - finished server side
+    - completely finished game
+
+Brian Moses 22:35 10-18-2020
+    - added basic GTK
+
+Mohidul Abedin, Brian Moses 21:00 01-19-2020
+    - finished client side GUI
+
+Mohidul Abedin, Brian Moses 11:00 01-20-2020
+    - finished must-dos
+
+Mohidul Abedin, Brian Moses 11:20 01-20-2020
+    - Song playing is on GTK
+
+Mohidul Abedin, Brian Moses 16:30 01-20-2020
+    - Added multiple choice
+
+Mohidul Abedin 22:20 01-20-2020
+    - Added devlog
