@@ -8,6 +8,11 @@
 
 GtkWidget * enter_song;
 
+static int return_to_main_page() {
+    gtk_main_quit();
+    execlp("make", "make", "run", NULL);
+}
+
 void execute(char * program, char * argument) {
   int f = fork();
   if (!f) execlp(program, program, argument, NULL);
@@ -44,6 +49,10 @@ void play_song () {
     GtkWidget * button = gtk_button_new_with_label("Enter");
     gtk_grid_attach(GTK_GRID(grid), button, 0, 2, 1, 1);
     g_signal_connect(button, "clicked", G_CALLBACK(play_songs), NULL);
+
+    GtkWidget * return_to_main_page_button = gtk_button_new_with_label("Return to main page!");
+    gtk_grid_attach(GTK_GRID(grid), return_to_main_page_button, 0, 5, 1, 1);
+    g_signal_connect(return_to_main_page_button, "clicked", G_CALLBACK(return_to_main_page), NULL);
 
     gtk_widget_show_all(window);
     gtk_main();
