@@ -38,9 +38,17 @@ int main() {
     GtkWidget * grid = gtk_grid_new();
     gtk_container_add(GTK_CONTAINER(window), grid);
     gtk_grid_set_row_spacing (GTK_GRID(grid), 25);
+    gtk_grid_set_column_spacing (GTK_GRID(grid), 10);
+
 
     GtkWidget * option = gtk_label_new("Select an option");
-    gtk_grid_attach(GTK_GRID(grid), option, 0, 0, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), option, 0, 0, 2, 1);
+
+    GtkWidget * welcome = gtk_label_new("\n\n\n\n\nHello! Welcome to BEATZ(tm)\n\n\n\n"
+                                       "You can play a song, add songs\n\n\n\n"
+                                       "to a queue, or play our original\n\n\n\n"
+                                       "ka-BEATZ(tm) game!\n");
+    gtk_grid_attach(GTK_GRID(grid), welcome, 1, 0, 1, 5);
 
     GtkWidget * button = gtk_button_new_with_label("Play a song");
     gtk_grid_attach(GTK_GRID(grid), button, 0, 1, 1, 1);

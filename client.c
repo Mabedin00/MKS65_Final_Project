@@ -98,7 +98,7 @@ static int update() {
         strcat(message, str);
         gtk_label_set_text(GTK_LABEL(timer), message);
 
-        char points_display[BUFFER_SIZE];
+        char points_display[BUFFER_SIZE] = "Current points: ";
         sprintf(points_display, "%d", points_int);
         gtk_label_set_text(GTK_LABEL(points), points_display);
 
@@ -109,7 +109,7 @@ static int update() {
             gtk_label_set_text(GTK_LABEL(alert), "New Song Playing!");
         }
         if (counter == 8) {
-            gtk_label_set_text(GTK_LABEL(alert), "Try your luck!");
+            gtk_label_set_text(GTK_LABEL(alert), "Good luck!");
         }
 
         if (num_songs <= 0) {
@@ -199,26 +199,26 @@ static int log_ip() {
     g_timeout_add_seconds (1, update, NULL);
 
     alert = gtk_label_new("");
-    gtk_grid_attach(GTK_GRID(grid), alert, 0, 4, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), alert, 0, 4, 3, 1);
 
     points = gtk_label_new("Points");
-    gtk_grid_attach(GTK_GRID(grid), points, 0, 5, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), points, 0, 5, 3, 1);
 
     // printf("options[0]: %s\n", options[0]);
     option0 = gtk_button_new_with_label(options[0]);
-    gtk_grid_attach(GTK_GRID(grid), option0, 1, 0, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), option0, 2, 0, 1, 1);
     g_signal_connect(option0, "clicked", G_CALLBACK(option_pressed0), NULL);
 
     option1 = gtk_button_new_with_label(options[1]);
-    gtk_grid_attach(GTK_GRID(grid), option1, 1, 1, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), option1, 2, 1, 1, 1);
     g_signal_connect(option1, "clicked", G_CALLBACK(option_pressed1), NULL);
 
     option2 = gtk_button_new_with_label(options[2]);
-    gtk_grid_attach(GTK_GRID(grid), option2, 1, 2, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), option2, 2, 2, 1, 1);
     g_signal_connect(option2, "clicked", G_CALLBACK(option_pressed2), NULL);
 
     option3 = gtk_button_new_with_label(options[3]);
-    gtk_grid_attach(GTK_GRID(grid), option3, 1, 3, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), option3, 2, 3, 1, 1);
     g_signal_connect(option3, "clicked", G_CALLBACK(option_pressed3), NULL);
 
     gtk_widget_show_all(window);
@@ -235,6 +235,8 @@ int client() {
   grid = gtk_grid_new();
   gtk_container_add(GTK_CONTAINER(window), grid);
   gtk_grid_set_row_spacing (GTK_GRID(grid), 25);
+  gtk_grid_set_column_spacing (GTK_GRID(grid), 10);
+
 
   ip_label = gtk_button_new_with_label("Submit");
   gtk_grid_attach(GTK_GRID(grid), ip_label, 0, 2, 2, 1);
