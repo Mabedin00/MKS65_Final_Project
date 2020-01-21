@@ -56,3 +56,13 @@ This project uitilizes networking, so you might need to ssh into the school comp
         but we found it unnecessary for testing purposes
     2. Duplicate answer choices
     3. There are un freed memory blocks, not sure where they went ¯\_(ツ)_/¯
+
+
+## System Components 
+
+    1. Allocating memory- ranom_songs() requires, Queue stuff 
+    2. Working with files - GTK file selector? 
+    3. Stats on files - reading from /songs directory     
+    3. Processes (fork, exec etc.)- Server forks and execlp aplay
+    4. Signals - signal handling to communicate btwn server and client
+    5. Networking - KABEATZ(tm) 
