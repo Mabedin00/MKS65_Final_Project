@@ -6,6 +6,7 @@
 # include "play_song.h"
 # include "server.h"
 # include "client.h"
+# include "queue.h"
 
 GtkWidget * window;
 
@@ -23,6 +24,11 @@ void press_button2() {
     client();
 }
 
+void press_button3() {
+    gtk_widget_destroy(window);
+    queue();
+}
+
 int main() {
     gtk_init(NULL, NULL);
 
@@ -36,17 +42,21 @@ int main() {
     GtkWidget * option = gtk_label_new("Select an option");
     gtk_grid_attach(GTK_GRID(grid), option, 0, 0, 1, 1);
 
-    GtkWidget * button = gtk_button_new_with_label("Play a song!");
+    GtkWidget * button = gtk_button_new_with_label("Play a song");
     gtk_grid_attach(GTK_GRID(grid), button, 0, 1, 1, 1);
     g_signal_connect(button, "clicked", G_CALLBACK(press_button), NULL);
 
     GtkWidget * button1 = gtk_button_new_with_label("Host a game");
-    gtk_grid_attach(GTK_GRID(grid), button1, 0, 2, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), button1, 0, 3, 1, 1);
     g_signal_connect(button1, "clicked", G_CALLBACK(press_button1), NULL);
 
     GtkWidget * button2 = gtk_button_new_with_label("Connect to a game");
-    gtk_grid_attach(GTK_GRID(grid), button2, 0, 3, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), button2, 0, 4, 1, 1);
     g_signal_connect(button2, "clicked", G_CALLBACK(press_button2), NULL);
+
+    GtkWidget * button3 = gtk_button_new_with_label("Create a queue of songs");
+    gtk_grid_attach(GTK_GRID(grid), button3, 0, 2, 1, 1);
+    g_signal_connect(button3, "clicked", G_CALLBACK(press_button3), NULL);
 
     gtk_widget_show_all(window);
     gtk_main();
